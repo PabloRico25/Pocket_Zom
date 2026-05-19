@@ -12,7 +12,7 @@ public class Jugador {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String username;
+    private String nombreUsuario;
 
     @Column(nullable = false, unique = true)
     private String email;

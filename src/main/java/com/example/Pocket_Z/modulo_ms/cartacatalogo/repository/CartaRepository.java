@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CartaRepository extends JpaRepository<Carta, Long> {
-    Optional<Carta> findByCodigoCarta(String codigoCarta);
+    Optional<Carta> findByCodigo(String codigo);
     List<Carta> findByRaza(String raza);
-    List<Carta> findByEstaActivaTrue();
+    List<Carta> findByActivaTrue();
 }

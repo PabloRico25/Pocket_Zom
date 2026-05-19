@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 @Data
 public class Movimiento {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_transaccion")
+    private String idTransaccion;
 
     @ManyToOne
     @JoinColumn(name = "cartera_id")
