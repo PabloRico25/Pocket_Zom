@@ -1,6 +1,6 @@
-package com.example.Pocket_Z.modulo_ms.inventario.repository;
+package com.example.inventario.repository;
 
-import com.example.Pocket_Z.modulo_ms.inventario.model.Inventario;
+import com.example.inventario.model.Inventario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

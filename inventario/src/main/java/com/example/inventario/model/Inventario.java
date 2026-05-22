@@ -1,4 +1,4 @@
-package com.example.Pocket_Z.modulo_ms.inventario.model;
+package com.example.inventario.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -12,8 +12,9 @@ public class Inventario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long jugadorId;  // Referencia lógica al MS de Perfiles
+    @Column(name = "jugador_id", nullable = false)
+    private Long jugadorId;  // RL a Jugador
 
+    @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 }
