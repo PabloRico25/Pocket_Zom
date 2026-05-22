@@ -1,6 +1,6 @@
-package com.example.Pocket_Z.modulo_ms.partida.repository;
+package com.example.partida.repository;
 
-import com.example.Pocket_Z.modulo_ms.partida.model.Partida;
+import com.example.partida.model.Partida;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 

@@ -1,6 +1,6 @@
-package com.example.Pocket_Z.modulo_ms.mazo.repository;
+package com.example.mazo.repository;
 
-import com.example.Pocket_Z.modulo_ms.mazo.model.Mazo;
+import com.example.mazo.model.Mazo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package com.example.Pocket_Z.modulo_ms.mazo.model;
+package com.example.mazo.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -12,11 +12,14 @@ public class Mazo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long jugadorId;       // referencia lógica a Jugador (MS Perfiles)
+    @Column(name = "jugador_id", nullable = false)
+    private Long jugadorId;  // RL a Jugador
 
     private String nombre;
+
+    @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    private Boolean esActivo = false;   // solo un mazo activo por jugador
+    @Column(name = "es_activo")
+    private Boolean esActivo = false;
 }

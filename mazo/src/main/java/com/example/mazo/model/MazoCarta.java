@@ -1,4 +1,4 @@
-package com.example.Pocket_Z.modulo_ms.mazo.model;
+package com.example.mazo.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -12,11 +12,11 @@ public class MazoCarta {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "mazo_id")
+    @JoinColumn(name = "mazo_id", nullable = false)
     private Mazo mazo;
 
-    @Column(nullable = false)
-    private String codigoCarta;   // referencia lógica a Carta (MS Catálogo)
+    @Column(name = "codigo_carta", nullable = false)
+    private String codigoCarta;  // RL a Carta
 
     private Integer cantidad = 1;
 }
