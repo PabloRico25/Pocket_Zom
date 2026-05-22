@@ -13,21 +13,20 @@ public class Partida {
     private Long id;
 
     @Column(name = "jugador1_id", nullable = false)
-    private Long jugador1Id;   // RL
+    private Long jugador1Id;
 
     @Column(name = "jugador2_id", nullable = false)
     private Long jugador2Id;
 
     @Column(name = "mazo_j1_id", nullable = false)
-    private Long mazoJ1Id;     // RL
+    private Long mazoJ1Id;
 
     @Column(name = "mazo_j2_id", nullable = false)
     private Long mazoJ2Id;
 
-    @Column(name = "ganador_id")
     private Long ganadorId;
 
-    private String estado;     // "EN_CURSO", "FINALIZADA"
+    private String estado; // "EN_CURSO", "FINALIZADA"
 
     @Column(name = "fecha_inicio")
     private LocalDateTime fechaInicio = LocalDateTime.now();
