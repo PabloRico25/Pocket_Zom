@@ -13,19 +13,19 @@ public class Partida {
     private Long id;
 
     @Column(name = "jugador1_id", nullable = false)
-    private Long jugador1Id;   // RL a Jugador
+    private Long jugador1Id;   // RL
 
     @Column(name = "jugador2_id", nullable = false)
-    private Long jugador2Id;   // RL a Jugador
+    private Long jugador2Id;
 
     @Column(name = "mazo_j1_id", nullable = false)
-    private Long mazoJ1Id;     // RL a Mazo
+    private Long mazoJ1Id;     // RL
 
     @Column(name = "mazo_j2_id", nullable = false)
-    private Long mazoJ2Id;     // RL a Mazo
+    private Long mazoJ2Id;
 
     @Column(name = "ganador_id")
-    private Long ganadorId;    // RL a Jugador (null si empate o en curso)
+    private Long ganadorId;
 
     private String estado;     // "EN_CURSO", "FINALIZADA"
 
