@@ -25,7 +25,7 @@ public class MovimientoService {
     @Autowired
     private CarteraService carteraService;
 
-    @Transactional
+   @Transactional
     public Movimiento registrarMovimiento(Long jugadorId, String tipo, Integer monto, String concepto) {
         log.info("Registrando movimiento para jugador: " + jugadorId);
         Cartera cartera = carteraService.obtenerPorJugador(jugadorId);

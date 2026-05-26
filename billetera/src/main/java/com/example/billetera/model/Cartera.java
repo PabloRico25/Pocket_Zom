@@ -22,7 +22,7 @@ public class Cartera {
     @Column(name = "jugador_id", unique = true, nullable = false)
     private Long jugadorId;
 
-    private Integer saldo;
+    private Integer saldo = 0;
 
     @Column(name = "ultima_actualizacion")
     private LocalDateTime ultimaActualizacion = LocalDateTime.now();

@@ -8,17 +8,9 @@ import java.time.LocalDateTime;
 @Table(name = "jugador_faccion")
 @Data
 public class JugadorFaccion {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "jugador_id", nullable = false)
-    private Jugador jugador;
-
-    @ManyToOne
-    @JoinColumn(name = "faccion_id", nullable = false)
-    private Faccion faccion;
-
+    private Long jugadorId;      // referencia lógica a Jugador
+    private Long faccionId;      // referencia lógica a Faccion
     private LocalDateTime fechaIngreso = LocalDateTime.now();
 }

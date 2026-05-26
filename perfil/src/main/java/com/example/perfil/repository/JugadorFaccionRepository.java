@@ -2,6 +2,7 @@ package com.example.perfil.repository;
 
 import com.example.perfil.model.JugadorFaccion;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 import java.util.Optional;
 

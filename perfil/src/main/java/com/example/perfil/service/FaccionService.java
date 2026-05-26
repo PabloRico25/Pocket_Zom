@@ -1,7 +1,6 @@
 package com.example.perfil.service;
 
-import com.example.perfil.dto.FaccionRequestDTO;
-import com.example.perfil.dto.FaccionResponseDTO;
+import com.example.perfil.dto.FaccionDTO;
 import com.example.perfil.model.Faccion;
 import com.example.perfil.model.Jugador;
 import com.example.perfil.repository.FaccionRepository;
@@ -20,80 +19,74 @@ public class FaccionService {
     private final FaccionRepository faccionRepository;
     private final JugadorService jugadorService;
 
-    public List<FaccionResponseDTO> listar() {
+    public List<FaccionDTO> listar() {
         return faccionRepository.findAll().stream()
-                .map(this::convertirADTO).collect(Collectors.toList());
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public FaccionResponseDTO obtenerPorId(Long id) {
-        Faccion f = faccionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Facción no encontrada"));
-        return convertirADTO(f);
-    }
-
-    // Obtener entidad Faccion (para uso interno)
-    public Faccion obtenerEntidad(Long id) {
-        return faccionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Facción no encontrada"));
+    public FaccionDTO obtenerPorId(Long id) {
+        Faccion faccion = faccionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Facción no encontrada con id: " + id));
+        return toDTO(faccion);
     }
 
     @Transactional
-    public FaccionResponseDTO crear(FaccionRequestDTO dto) {
+    public FaccionDTO crear(FaccionDTO dto) {
         if (faccionRepository.findByNombre(dto.getNombre()).isPresent()) {
-            throw new RuntimeException("Ya existe una facción con ese nombre");
+            throw new RuntimeException("Ya existe una facción con el nombre: " + dto.getNombre());
         }
-        Faccion f = new Faccion();
-        f.setNombre(dto.getNombre());
-        if (dto.getLiderId() != null) {
-            Jugador lider = jugadorService.obtenerEntidad(dto.getLiderId());
-            f.setLider(lider);
-        }
-        f.setNivelInfeccion(dto.getNivelInfeccion() != null ? dto.getNivelInfeccion() : 0);
-        f.setBonoAtributo(dto.getBonoAtributo() != null ? dto.getBonoAtributo() : 0);
-        f = faccionRepository.save(f);
-        log.info("Facción creada: {}", f.getNombre());
-        return convertirADTO(f);
+        Faccion faccion = new Faccion();
+        faccion.setNombre(dto.getNombre());
+        faccion.setLiderId(dto.getLiderId());
+        faccion.setNivelInfeccion(dto.getNivelInfeccion() != null ? dto.getNivelInfeccion() : 0);
+        faccion.setBonoAtributo(dto.getBonoAtributo() != null ? dto.getBonoAtributo() : 0);
+        faccion = faccionRepository.save(faccion);
+        log.info("Facción creada: {}", faccion.getNombre());
+        return toDTO(faccion);
     }
 
     @Transactional
-    public FaccionResponseDTO actualizar(Long id, FaccionRequestDTO dto) {
-        Faccion f = faccionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Facción no encontrada"));
-        if (dto.getNombre() != null && !dto.getNombre().equals(f.getNombre())) {
-            if (faccionRepository.findByNombre(dto.getNombre()).isPresent()) {
-                throw new RuntimeException("Ya existe una facción con ese nombre");
-            }
-            f.setNombre(dto.getNombre());
+    public FaccionDTO actualizar(Long id, FaccionDTO dto) {
+        Faccion faccion = faccionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Facción no encontrada con id: " + id));
+        if (!faccion.getNombre().equals(dto.getNombre()) &&
+                faccionRepository.findByNombre(dto.getNombre()).isPresent()) {
+            throw new RuntimeException("Ya existe una facción con el nombre: " + dto.getNombre());
         }
-        if (dto.getLiderId() != null) {
-            Jugador lider = jugadorService.obtenerEntidad(dto.getLiderId());
-            f.setLider(lider);
-        }
-        if (dto.getNivelInfeccion() != null) f.setNivelInfeccion(dto.getNivelInfeccion());
-        if (dto.getBonoAtributo() != null) f.setBonoAtributo(dto.getBonoAtributo());
-        f = faccionRepository.save(f);
-        log.info("Facción actualizada: {}", f.getNombre());
-        return convertirADTO(f);
+        faccion.setNombre(dto.getNombre());
+        faccion.setLiderId(dto.getLiderId());
+        faccion.setNivelInfeccion(dto.getNivelInfeccion() != null ? dto.getNivelInfeccion() : faccion.getNivelInfeccion());
+        faccion.setBonoAtributo(dto.getBonoAtributo() != null ? dto.getBonoAtributo() : faccion.getBonoAtributo());
+        faccion = faccionRepository.save(faccion);
+        log.info("Facción actualizada: {}", faccion.getNombre());
+        return toDTO(faccion);
     }
 
     @Transactional
     public void eliminar(Long id) {
-        if (!faccionRepository.existsById(id))
-            throw new RuntimeException("Facción no encontrada");
+        if (!faccionRepository.existsById(id)) {
+            throw new RuntimeException("Facción no encontrada con id: " + id);
+        }
         faccionRepository.deleteById(id);
-        log.info("Facción {} eliminada", id);
+        log.info("Facción eliminada con id: {}", id);
     }
 
-    private FaccionResponseDTO convertirADTO(Faccion f) {
-        Long liderId = f.getLider() != null ? f.getLider().getId() : null;
-        String liderNombre = f.getLider() != null ? f.getLider().getNombreUsuario() : null;
-        return new FaccionResponseDTO(
-                f.getId(),
-                f.getNombre(),
-                liderId,
-                liderNombre,
-                f.getNivelInfeccion(),
-                f.getBonoAtributo()
-        );
+    private FaccionDTO toDTO(Faccion faccion) {
+        FaccionDTO dto = new FaccionDTO();
+        dto.setId(faccion.getId());
+        dto.setNombre(faccion.getNombre());
+        dto.setLiderId(faccion.getLiderId());
+        if (faccion.getLiderId() != null) {
+            try {
+                Jugador lider = jugadorService.obtenerEntidad(faccion.getLiderId());
+                dto.setLiderNombre(lider.getNombreUsuario());
+            } catch (Exception e) {
+                dto.setLiderNombre("DESCONOCIDO");
+            }
+        }
+        dto.setNivelInfeccion(faccion.getNivelInfeccion());
+        dto.setBonoAtributo(faccion.getBonoAtributo());
+        return dto;
     }
 }

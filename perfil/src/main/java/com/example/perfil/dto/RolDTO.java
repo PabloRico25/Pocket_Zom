@@ -4,9 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class LoginRequestDTO {
+public class RolDTO {
+    private Long id;
     @NotBlank
-    private String username;
-    @NotBlank
-    private String password;
+    private String nombre;
 }

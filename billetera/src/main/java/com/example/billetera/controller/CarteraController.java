@@ -1,8 +1,7 @@
 package com.example.billetera.controller;
 
-import com.example.billetera.Cliente.RangoClient;
+
 import com.example.billetera.dto.CarteraDTO;
-import com.example.billetera.dto.CarteraResponseDTO;
 import com.example.billetera.model.Cartera;
 import com.example.billetera.service.CarteraService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,7 @@ public class CarteraController {
     @Autowired
     private CarteraService carteraService;
 
-    private RangoClient rangoClient;
+
 
     @PostMapping("/{jugadorId}")
     public ResponseEntity<CarteraDTO> crear(@PathVariable Long jugadorId) {
@@ -31,12 +30,8 @@ public class CarteraController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
-        // Notificar a otro microservicio
-        try {
-            rangoClient.notificarNuevaCartera(jugadorId);
-        } catch (Exception e) {
-            log.info("No se pudo notificar a ranking: " + e.getMessage());
-        }
+
+
 
         CarteraDTO dto = new CarteraDTO();
         dto.setId(cartera.getId());
