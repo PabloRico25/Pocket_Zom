@@ -3,37 +3,46 @@ package com.example.billetera.service;
 import com.example.billetera.dto.CarteraResponseDTO;
 import com.example.billetera.model.Cartera;
 import com.example.billetera.repository.CarteraRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class CarteraService {
-    private final CarteraRepository carteraRepository;
+    @Autowired
+    private CarteraRepository carteraRepository;
 
     public Cartera crearCartera(Long jugadorId) {
         log.info("Creando cartera para jugadorId: {}", jugadorId);
-        if (carteraRepository.findByJugadorId(jugadorId).isPresent()) {
-            throw new RuntimeException("La cartera para el jugador " + jugadorId + " ya existe");
+        Cartera existe = carteraRepository.findByJugadorId(jugadorId);
+        if(existe != null){
+            log.info("Ya existe cartera para jugador: " + jugadorId);
+            return null;
         }
-        Cartera c = new Cartera();
-        c.setJugadorId(jugadorId);
-        c.setSaldo(0);
-        c.setUltimaActualizacion(LocalDateTime.now());
-        return carteraRepository.save(c);
+         Cartera nuevo = new Cartera();
+        nuevo.setJugadorId(jugadorId);
+        nuevo.setSaldo(0);
+        nuevo.setUltimaActualizacion(LocalDateTime.now());
+        return carteraRepository.save(nuevo);
     }
 
-    public Optional<Cartera> obtenerPorJugador(Long jugadorId) {
+    public Cartera obtenerPorJugador(Long jugadorId){
         return carteraRepository.findByJugadorId(jugadorId);
     }
 
-    public Cartera guardar(Cartera cartera) {
-        cartera.setUltimaActualizacion(LocalDateTime.now());
-        return carteraRepository.save(cartera);
+    public Cartera guardar(Cartera cartera){
+        if(cartera == null){
+            return null;
+        }else{
+            cartera.setUltimaActualizacion(LocalDateTime.now());
+            return carteraRepository.save(cartera);
+        }
     }
 
     public CarteraResponseDTO toDTO(Cartera c) {
