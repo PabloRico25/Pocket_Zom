@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/facciones")
+@RequestMapping("/api/v1/facciones")
 @RequiredArgsConstructor
 public class FaccionController {
     private final FaccionService faccionService;

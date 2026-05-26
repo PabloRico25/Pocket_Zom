@@ -1,6 +1,5 @@
 package com.example.perfil.service;
 
-
 import com.example.perfil.dto.RolDTO;
 import com.example.perfil.model.Rol;
 import com.example.perfil.repository.RolRepository;
@@ -15,7 +14,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RolService {private final RolRepository rolRepository;
+public class RolService {
+    private final RolRepository rolRepository;
 
     public List<RolDTO> listar() {
         return rolRepository.findAll().stream()

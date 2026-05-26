@@ -1,6 +1,12 @@
 package com.example.inventario.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -12,9 +18,9 @@ public class Inventario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "jugador_id", nullable = false)
-    private Long jugadorId;  // RL a Jugador
+    @NotNull(message = "El ID del jugador es obligatorio")
+    private Long jugadorId;   // referencia lógica a Jugador (MS perfil)
 
-    @Column(name = "fecha_creacion")
+    @PastOrPresent(message = "La fecha de creación no puede ser futura")
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 }

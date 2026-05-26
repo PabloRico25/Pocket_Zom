@@ -1,6 +1,5 @@
 package com.example.perfil.repository;
 
-
 import com.example.perfil.model.Rol;
 import org.springframework.data.jpa.repository.JpaRepository;
 

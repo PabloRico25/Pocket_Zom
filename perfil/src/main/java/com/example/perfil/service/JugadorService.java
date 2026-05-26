@@ -54,7 +54,7 @@ public class JugadorService {
         return jugadorRepository.existsById(id);
     }
 
-    // Método interno para obtener entidad (usado por FaccionService)
+    //Método interno para obtener entidad (usado por FaccionService)
     public Jugador obtenerEntidad(Long id) {
         return jugadorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Jugador no encontrado con id: " + id));

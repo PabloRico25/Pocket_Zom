@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/jugador-faccion")
+@RequestMapping("/api/v1/jugador-faccion")
 @RequiredArgsConstructor
 public class JugadorFaccionController {
     private final JugadorFaccionService jugadorFaccionService;
