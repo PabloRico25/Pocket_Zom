@@ -1,36 +1,26 @@
 package com.example.logros.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "logro")
+@Table(name = "logros")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Logro {
     @Id
-    @Column(name = "id_logro", length = 30)
+    @Column(length = 30)
     private String idLogro;
-
-    @NotBlank
-    @Column(length = 50, nullable = false)
     private String nombre;
-
-    @Column(length = 200)
     private String descripcion;
-
-    @NotBlank
-    @Column(name = "condicion_tipo", length = 30, nullable = false)
-    private String condicionTipo;  // "VICTORIAS", "CARTAS_COLECCIONADAS", "EXPERIENCIA"
-
-    @NotNull
-    @Column(name = "condicion_valor", nullable = false)
+    private String condicionTipo;
     private Integer condicionValor;
-
-    @Column(name = "recompensa_monedas")
     private Integer recompensaMonedas = 0;
-
-    @Column(name = "recompensa_exp")
     private Integer recompensaExp = 0;
 }

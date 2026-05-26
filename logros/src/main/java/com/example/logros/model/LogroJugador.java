@@ -1,24 +1,22 @@
 package com.example.logros.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "logro_jugador")
+@Table(name = "logros_jugador")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class LogroJugador {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "jugador_id", length = 30, nullable = false)
-    private String jugadorId;  // Referencia lógica (String)
-
-    @ManyToOne
-    @JoinColumn(name = "logro_id")
-    private Logro logro;
-
-    @Column(name = "fecha_desbloqueo")
+    private Long jugadorId;            // referencia lógica a Jugador
+    private String idLogro;            // referencia lógica a Logro
     private LocalDateTime fechaDesbloqueo = LocalDateTime.now();
 }

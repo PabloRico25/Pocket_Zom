@@ -1,13 +1,14 @@
 package com.example.logros.service;
+
+import com.example.logros.client.BilleteraClient;
+import com.example.logros.dto.LogroJugadorDTO;
 import com.example.logros.model.Logro;
-import com.example.logros.dto.LogroJugadorRequestDTO;
-import com.example.logros.dto.LogroJugadorResponseDTO;
 import com.example.logros.model.LogroJugador;
 import com.example.logros.repository.LogroJugadorRepository;
-import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,62 +16,72 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class LogroJugadorService {
-    private final LogroJugadorRepository logroJugadorRepository;
-    private final LogroService logroService;
+    @Autowired
+    private LogroJugadorRepository logroJugadorRepository;
+    @Autowired
+    private LogroService logroService;
+    @Autowired
+    private BilleteraClient billeteraClient;
 
-    public List<LogroJugadorResponseDTO> listarPorJugador(String jugadorId) {
-        return logroJugadorRepository.findByJugadorId(jugadorId)
-                .stream().map(this::toDTO).collect(Collectors.toList());
+    public List<LogroJugadorDTO> listarPorJugador(Long jugadorId) {
+        return logroJugadorRepository.findByJugadorId(jugadorId).stream()
+                .map(this::toDTO).collect(Collectors.toList());
     }
 
-    public boolean yaDesbloqueado(String jugadorId, String idLogro) {
-        return logroJugadorRepository.findByJugadorIdAndLogro_IdLogro(jugadorId, idLogro).isPresent();
+    public boolean yaDesbloqueado(Long jugadorId, String idLogro) {
+        return logroJugadorRepository.findByJugadorIdAndIdLogro(jugadorId, idLogro).isPresent();
     }
 
-    @Transactional
-    public LogroJugadorResponseDTO desbloquear(LogroJugadorRequestDTO dto) {
-        if (yaDesbloqueado(dto.getJugadorId(), dto.getIdLogro())) {
+    public LogroJugadorDTO desbloquear(Long jugadorId, String idLogro) {
+        if (yaDesbloqueado(jugadorId, idLogro)) {
             throw new RuntimeException("El logro ya fue desbloqueado por este jugador");
         }
-        var logro = logroService.obtenerEntidad(dto.getIdLogro());
+        Logro logro = logroService.obtenerEntidad(idLogro);
         LogroJugador lj = new LogroJugador();
-        lj.setJugadorId(dto.getJugadorId());
-        lj.setLogro(logro);
+        lj.setJugadorId(jugadorId);
+        lj.setIdLogro(idLogro);
         lj.setFechaDesbloqueo(LocalDateTime.now());
-        LogroJugador saved = logroJugadorRepository.save(lj);
-        log.info("Logro {} desbloqueado por jugador {}", dto.getIdLogro(), dto.getJugadorId());
-        // Aquí se podría enviar un evento Kafka o llamar a billetera para dar recompensa
-        return toDTO(saved);
+        lj = logroJugadorRepository.save(lj);
+
+        // Otorgar recompensa (monedas) al jugador
+        if (logro.getRecompensaMonedas() > 0) {
+            try {
+                billeteraClient.registrarMovimiento(jugadorId, "INGRESO", logro.getRecompensaMonedas(),
+                        "Logro desbloqueado: " + logro.getNombre());
+            } catch (Exception e) {
+                log.error("Error al entregar recompensa: {}", e.getMessage());
+            }
+        }
+        // Si hubiera recompensa de experiencia, se podría enviar a otro MS (ej. perfil)
+        return toDTO(lj, logro);
     }
 
-    // Método para verificar y desbloquear automáticamente según progreso
-    @Transactional
-    public List<LogroJugadorResponseDTO> verificarYDesbloquear(String jugadorId, String tipoCondicion, Integer valorActual) {
-        List<Logro> posibles = logroService.listarPorTipo(tipoCondicion).stream()
+    public List<LogroJugadorDTO> verificarYDesbloquear(Long jugadorId, String condicionTipo, Integer valorActual) {
+        List<Logro> posibles = logroService.listarPorTipo(condicionTipo).stream()
                 .map(dto -> logroService.obtenerEntidad(dto.getIdLogro()))
                 .collect(Collectors.toList());
 
         return posibles.stream()
                 .filter(logro -> valorActual >= logro.getCondicionValor())
                 .filter(logro -> !yaDesbloqueado(jugadorId, logro.getIdLogro()))
-                .map(logro -> {
-                    LogroJugadorRequestDTO req = new LogroJugadorRequestDTO();
-                    req.setJugadorId(jugadorId);
-                    req.setIdLogro(logro.getIdLogro());
-                    return desbloquear(req);
-                })
+                .map(logro -> desbloquear(jugadorId, logro.getIdLogro()))
                 .collect(Collectors.toList());
     }
 
-    private LogroJugadorResponseDTO toDTO(LogroJugador lj) {
-        return new LogroJugadorResponseDTO(
-                lj.getId(),
-                lj.getJugadorId(),
-                lj.getLogro().getIdLogro(),
-                lj.getLogro().getNombre(),
-                lj.getFechaDesbloqueo()
-        );
+    private LogroJugadorDTO toDTO(LogroJugador lj, Logro logro) {
+        LogroJugadorDTO dto = new LogroJugadorDTO();
+        dto.setId(lj.getId());
+        dto.setJugadorId(lj.getJugadorId());
+        dto.setIdLogro(lj.getIdLogro());
+        dto.setNombreLogro(logro != null ? logro.getNombre() : "");
+        dto.setFechaDesbloqueo(lj.getFechaDesbloqueo());
+        return dto;
+    }
+
+    private LogroJugadorDTO toDTO(LogroJugador lj) {
+        Logro logro = logroService.obtenerEntidad(lj.getIdLogro());
+        return toDTO(lj, logro);
     }
 }
