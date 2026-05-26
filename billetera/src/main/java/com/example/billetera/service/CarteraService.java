@@ -1,51 +1,56 @@
 package com.example.billetera.service;
 
-import com.example.billetera.dto.CarteraResponseDTO;
+import com.example.billetera.dto.CarteraDTO;
 import com.example.billetera.model.Cartera;
 import com.example.billetera.repository.CarteraRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Slf4j
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class CarteraService {
-    @Autowired
-    private CarteraRepository carteraRepository;
+    private final CarteraRepository carteraRepository;
 
-    public Cartera crearCartera(Long jugadorId) {
-        log.info("Creando cartera para jugadorId: {}", jugadorId);
-        Cartera existe = carteraRepository.findByJugadorId(jugadorId);
-        if(existe != null){
-            log.info("Ya existe cartera para jugador: " + jugadorId);
-            return null;
+    @Transactional
+    public CarteraDTO crearCartera(Long jugadorId) {
+        if (carteraRepository.findByJugadorId(jugadorId).isPresent()) {
+            throw new RuntimeException("La cartera para el jugador " + jugadorId + " ya existe");
         }
-         Cartera nuevo = new Cartera();
-        nuevo.setJugadorId(jugadorId);
-        nuevo.setSaldo(0);
-        nuevo.setUltimaActualizacion(LocalDateTime.now());
-        return carteraRepository.save(nuevo);
+        Cartera c = new Cartera();
+        c.setJugadorId(jugadorId);
+        c.setSaldo(0);
+        c.setUltimaActualizacion(LocalDateTime.now());
+        c = carteraRepository.save(c);
+        log.info("Cartera creada para jugador {} con id {}", jugadorId, c.getId());
+        return toDTO(c);
     }
 
-    public Cartera obtenerPorJugador(Long jugadorId){
-        return carteraRepository.findByJugadorId(jugadorId);
+    public CarteraDTO obtenerPorJugador(Long jugadorId) {
+        return carteraRepository.findByJugadorId(jugadorId)
+                .map(this::toDTO)
+                .orElse(null);
     }
 
-    public Cartera guardar(Cartera cartera){
-        if(cartera == null){
-            return null;
-        }else{
-            cartera.setUltimaActualizacion(LocalDateTime.now());
-            return carteraRepository.save(cartera);
-        }
+    // Método interno usado por MovimientoService
+    public Cartera obtenerEntidad(Long jugadorId) {
+        return carteraRepository.findByJugadorId(jugadorId)
+                .orElseThrow(() -> new RuntimeException("Cartera no encontrada para jugador " + jugadorId));
     }
 
-    public CarteraResponseDTO toDTO(Cartera c) {
-        return new CarteraResponseDTO(c.getId(), c.getJugadorId(), c.getSaldo());
+    public Cartera guardar(Cartera cartera) {
+        cartera.setUltimaActualizacion(LocalDateTime.now());
+        return carteraRepository.save(cartera);
+    }
+
+    private CarteraDTO toDTO(Cartera c) {
+        CarteraDTO dto = new CarteraDTO();
+        dto.setId(c.getId());
+        dto.setJugadorId(c.getJugadorId());
+        dto.setSaldo(c.getSaldo());
+        return dto;
     }
 }

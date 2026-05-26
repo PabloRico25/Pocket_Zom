@@ -1,7 +1,7 @@
 package com.example.perfil.controller;
 
-import com.example.perfil.model.Rol;
-import com.example.perfil.repository.RolRepository;
+import com.example.perfil.dto.RolDTO;
+import com.example.perfil.service.RolService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,30 +14,47 @@ import java.util.List;
 @RequestMapping("/api/roles")
 @RequiredArgsConstructor
 public class RolController {
-    private final RolRepository rolRepository;
+    private final RolService rolService;
 
-    // Listar todos los roles
     @GetMapping
-    public ResponseEntity<List<Rol>> listar() {
-        List<Rol> roles = rolRepository.findAll();
-        return roles.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(roles);
+    public ResponseEntity<List<RolDTO>> listar() {
+        return ResponseEntity.ok(rolService.listar());
     }
 
-    // Crear un nuevo rol
+    @GetMapping("/{id}")
+    public ResponseEntity<RolDTO> obtener(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(rolService.obtenerPorId(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping
-    public ResponseEntity<Rol> crear(@Valid @RequestBody Rol rol) {
-        if (rolRepository.findByNombre(rol.getNombre()).isPresent()) {
+    public ResponseEntity<RolDTO> crear(@Valid @RequestBody RolDTO dto) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(rolService.crear(dto));
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
-        Rol nuevo = rolRepository.save(rol);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
-    // Obtener rol por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Rol> obtenerPorId(@PathVariable Long id) {
-        return rolRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PutMapping("/{id}")
+    public ResponseEntity<RolDTO> actualizar(@PathVariable Long id, @Valid @RequestBody RolDTO dto) {
+        try {
+            return ResponseEntity.ok(rolService.actualizar(id, dto));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        try {
+            rolService.eliminar(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

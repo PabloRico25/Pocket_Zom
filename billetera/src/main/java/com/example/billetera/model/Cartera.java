@@ -1,29 +1,26 @@
 package com.example.billetera.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "carteras")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Cartera {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(name = "jugador_id", unique = true, nullable = false)
+    @NotNull(message = "El ID del jugador es obligatorio")
     private Long jugadorId;
 
-    private Integer saldo;
+    @Min(value = 0, message = "El saldo no puede ser negativo")
+    private Integer saldo = 0;
 
-    @Column(name = "ultima_actualizacion")
+    @PastOrPresent(message = "La fecha de actualización no puede ser futura")
     private LocalDateTime ultimaActualizacion = LocalDateTime.now();
 }

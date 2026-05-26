@@ -1,6 +1,8 @@
 package com.example.perfil.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -12,13 +14,12 @@ public class JugadorFaccion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "jugador_id", nullable = false)
-    private Jugador jugador;
+    @NotNull(message = "El jugador es obligatorio")
+    private Long jugadorId;
 
-    @ManyToOne
-    @JoinColumn(name = "faccion_id", nullable = false)
-    private Faccion faccion;
+    @NotNull(message = "La facción es obligatoria")
+    private Long faccionId;
 
+    @PastOrPresent(message = "La fecha de ingreso no puede ser futura")
     private LocalDateTime fechaIngreso = LocalDateTime.now();
 }
