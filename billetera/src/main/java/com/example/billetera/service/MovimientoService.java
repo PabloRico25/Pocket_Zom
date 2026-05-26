@@ -24,26 +24,21 @@ public class MovimientoService {
 
     @Transactional
     public MovimientoDTO registrarMovimiento(Long jugadorId, MovimientoDTO dto) {
-        // 1. Validar que el jugador existe (Feign)
         if (!perfilClient.existeJugador(jugadorId)) {
-            throw new RuntimeException("El jugador " + jugadorId + " no existe");
+            throw new RuntimeException(jugadorId + " No existe");
         }
 
-        // 2. Obtener la cartera
         Cartera cartera = carteraService.obtenerEntidad(jugadorId);
 
-        // 3. Calcular nuevo saldo
         int cambio = "INGRESO".equalsIgnoreCase(dto.getTipo()) ? dto.getMonto() : -dto.getMonto();
         int nuevoSaldo = cartera.getSaldo() + cambio;
         if (nuevoSaldo < 0) {
             throw new RuntimeException("Saldo insuficiente. Saldo actual: " + cartera.getSaldo());
         }
 
-        // 4. Actualizar saldo de la cartera
         cartera.setSaldo(nuevoSaldo);
         carteraService.guardar(cartera);
 
-        // 5. Crear y guardar el movimiento
         Movimiento movimiento = new Movimiento();
         movimiento.setIdTransaccion(UUID.randomUUID().toString());
         movimiento.setCarteraId(cartera.getId());
@@ -51,15 +46,11 @@ public class MovimientoService {
         movimiento.setMonto(dto.getMonto());
         movimiento.setConcepto(dto.getConcepto());
         movimiento.setFecha(LocalDateTime.now());
-
-        // ** Asignar valores a las columnas extra de la tabla **
-        movimiento.setTipoMovimiento(dto.getTipo());            // valor igual al tipo
-        movimiento.setDescripcion(dto.getConcepto());           // usar el concepto como descripción
-        movimiento.setBilleterasIdBilletera("N/A");             // valor por defecto
-
+        movimiento.setTipoMovimiento(dto.getTipo());
+        movimiento.setDescripcion(dto.getConcepto());
+        movimiento.setBilleterasIdBilletera("N/A");
         movimiento = movimientoRepository.save(movimiento);
 
-        // 6. Completar el DTO con los datos generados
         dto.setIdTransaccion(movimiento.getIdTransaccion());
         dto.setFecha(movimiento.getFecha());
         log.info("Movimiento registrado: {} para jugador {}", movimiento.getIdTransaccion(), jugadorId);

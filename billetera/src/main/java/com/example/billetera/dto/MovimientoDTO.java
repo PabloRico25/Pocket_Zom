@@ -1,4 +1,3 @@
-// MovimientoDTO.java
 package com.example.billetera.dto;
 
 import jakarta.validation.constraints.Min;

@@ -21,7 +21,7 @@ public class Movimiento {
     private Integer monto;
 
     @NotBlank(message = "El concepto es obligatorio")
-    @Size(max = 255, message = "El concepto no puede superar 255 caracteres")
+    @Size(max = 100, message = "El concepto no puede superar 100 caracteres")
     private String concepto;
 
     @NotNull(message = "La fecha es obligatoria")
@@ -32,7 +32,6 @@ public class Movimiento {
     @Pattern(regexp = "INGRESO|EGRESO", message = "El tipo debe ser INGRESO o EGRESO")
     private String tipo;
 
-    // Columnas extra que existen en la tabla (según DESCRIBE)
     @Column(name = "tipo_movimiento", nullable = false)
     @NotBlank(message = "El tipo de movimiento es obligatorio")
     @Size(max = 15)

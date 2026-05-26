@@ -1,4 +1,3 @@
-// CarteraDTO.java
 package com.example.billetera.dto;
 
 import lombok.Data;

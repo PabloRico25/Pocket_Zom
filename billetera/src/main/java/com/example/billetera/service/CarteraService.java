@@ -37,7 +37,7 @@ public class CarteraService {
 
     public Cartera obtenerEntidad(Long jugadorId) {
         return carteraRepository.findByJugadorId(jugadorId)
-                .orElseThrow(() -> new RuntimeException("Cartera no encontrada para jugador " + jugadorId));
+                .orElseThrow(() -> new RuntimeException("Cartera no encontrada"));
     }
 
     public Cartera guardar(Cartera cartera) {
