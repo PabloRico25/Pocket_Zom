@@ -1,10 +1,10 @@
 package com.example.compra.controller;
 
-import com.example.compra.dto.AperturaRequestDTO;
-import com.example.compra.dto.AperturaResponseDTO;
+import com.example.compra.dto.AbrirSobreDTO;
+import com.example.compra.dto.AperturaDTO;
 import com.example.compra.service.AperturaService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,25 +12,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/aperturas")
-@RequiredArgsConstructor
+@RequestMapping("/api/v1/aperturas")
 public class AperturaController {
-    private final AperturaService aperturaService;
+    @Autowired
+    private AperturaService aperturaService;
 
     @PostMapping("/{jugadorId}")
-    public ResponseEntity<AperturaResponseDTO> abrir(@PathVariable Long jugadorId,
-                                                     @Valid @RequestBody AperturaRequestDTO dto) {
+    public ResponseEntity<AperturaDTO> abrir(@PathVariable Long jugadorId,
+                                             @Valid @RequestBody AbrirSobreDTO dto) {
         try {
-            AperturaResponseDTO apertura = aperturaService.abrirSuministro(jugadorId, dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(apertura);
+            return ResponseEntity.status(HttpStatus.CREATED).body(aperturaService.abrirSuministro(jugadorId, dto));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @GetMapping("/{jugadorId}")
-    public ResponseEntity<List<AperturaResponseDTO>> listar(@PathVariable Long jugadorId) {
-        List<AperturaResponseDTO> list = aperturaService.listarAperturasPorJugador(jugadorId);
-        return list.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(list);
+    public ResponseEntity<List<AperturaDTO>> listar(@PathVariable Long jugadorId) {
+        return ResponseEntity.ok(aperturaService.listarAperturasPorJugador(jugadorId));
     }
 }

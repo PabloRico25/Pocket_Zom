@@ -6,12 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class SuministroRequestDTO {
+public class SuministroDTO {
+    private Long id;
     @NotBlank
     private String nombre;
     @NotNull @Min(0)
     private Integer costo;
-    @NotNull @Min(1)
+    @NotNull
+    @Min(1)
     private Integer cantidadCartas;
     private String probabilidades;
 }

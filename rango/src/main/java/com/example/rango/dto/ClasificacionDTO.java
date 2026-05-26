@@ -1,12 +1,12 @@
 package com.example.rango.dto;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-public class ClasificacionResponseDTO {
+public class ClasificacionDTO {
     private Long id;
+    @NotNull
     private Long jugadorId;
     private Integer puntosElo;
     private Integer victorias;

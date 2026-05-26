@@ -1,16 +1,18 @@
 package com.example.compra.service;
 
-import com.example.compra.dto.AperturaRequestDTO;
-import com.example.compra.dto.AperturaResponseDTO;
+import com.example.compra.client.BilleteraClient;
+import com.example.compra.client.InventarioClient;
+import com.example.compra.dto.AbrirSobreDTO;
+import com.example.compra.dto.AperturaDTO;
 import com.example.compra.model.Apertura;
 import com.example.compra.model.Suministro;
 import com.example.compra.repository.AperturaRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,43 +21,66 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class AperturaService {
-    private final AperturaRepository aperturaRepository;
-    private final SuministroService suministroService;
-    private final Random random = new Random();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private AperturaRepository aperturaRepository;
+    @Autowired
+    private SuministroService suministroService;
+    @Autowired
+    private BilleteraClient billeteraClient;
+    @Autowired
+    private InventarioClient inventarioClient;
 
-    @Transactional
-    public AperturaResponseDTO abrirSuministro(Long jugadorId, AperturaRequestDTO dto) {
+    private Random random = new Random();
+    @Autowired
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    public AperturaDTO abrirSuministro(Long jugadorId, AbrirSobreDTO dto) {
         Suministro suministro = suministroService.obtenerEntidad(dto.getSuministroId());
 
-        // Simular obtención de cartas según cantidadCartas
+        try {
+            billeteraClient.registrarMovimiento(jugadorId, "EGRESO", suministro.getCosto(),
+                    "Compra de " + suministro.getNombre());
+        } catch (Exception e) {
+            throw new RuntimeException("No se pudo descontar el costo. Saldo insuficiente?");
+        }
+
         List<String> cartasObtenidas = new ArrayList<>();
         for (int i = 0; i < suministro.getCantidadCartas(); i++) {
-            String carta = generarCartaAleatoria(suministro.getProbabilidades());
+            String carta = generarCartaAleatoria();
             cartasObtenidas.add(carta);
         }
-        String cartasJson = convertirListaAJson(cartasObtenidas);
 
         Apertura apertura = new Apertura();
         apertura.setJugadorId(jugadorId);
-        apertura.setSuministro(suministro);
-        apertura.setCartasObtenidas(cartasJson);
+        apertura.setSuministroId(suministro.getId());
+        apertura.setCartasObtenidas(convertirListaAJson(cartasObtenidas));
         apertura = aperturaRepository.save(apertura);
+
+        for (String carta : cartasObtenidas) {
+            try {
+                inventarioClient.agregarCarta(jugadorId, carta, 1);
+            } catch (Exception e) {
+                log.error("Error al añadir carta {} al inventario: {}", carta, e.getMessage());
+            }
+        }
+
         log.info("Apertura {} realizada: jugador={}, suministro={}, cartas={}",
-                apertura.getId(), jugadorId, suministro.getNombre(), cartasJson);
-        return convertirADTO(apertura);
+                apertura.getId(), jugadorId, suministro.getNombre(), cartasObtenidas);
+        return toDTO(apertura, suministro);
     }
 
-    public List<AperturaResponseDTO> listarAperturasPorJugador(Long jugadorId) {
-        return aperturaRepository.findByJugadorId(jugadorId)
-                .stream().map(this::convertirADTO).collect(Collectors.toList());
+    public List<AperturaDTO> listarAperturasPorJugador(Long jugadorId) {
+        return aperturaRepository.findByJugadorId(jugadorId).stream()
+                .map(a -> {
+                    Suministro s = suministroService.obtenerEntidad(a.getSuministroId());
+                    return toDTO(a, s);
+                })
+                .collect(Collectors.toList());
     }
 
-    private String generarCartaAleatoria(String probabilidadesJson) {
-        // Implementación simple: devuelve cartas de ejemplo.
-        // En un caso real, se parsearía el JSON y se elegiría según rarezas.
+    private String generarCartaAleatoria() {
         String[] cartas = {"ZMB-001", "ZMB-002", "HUM-001", "HUM-002", "BEST-001"};
         return cartas[random.nextInt(cartas.length)];
     }
@@ -69,14 +94,14 @@ public class AperturaService {
         }
     }
 
-    private AperturaResponseDTO convertirADTO(Apertura a) {
-        return new AperturaResponseDTO(
-                a.getId(),
-                a.getJugadorId(),
-                a.getSuministro().getId(),
-                a.getSuministro().getNombre(),
-                a.getFecha(),
-                a.getCartasObtenidas()
-        );
+    private AperturaDTO toDTO(Apertura a, Suministro s) {
+        AperturaDTO dto = new AperturaDTO();
+        dto.setId(a.getId());
+        dto.setJugadorId(a.getJugadorId());
+        dto.setSuministroId(a.getSuministroId());
+        dto.setSuministroNombre(s != null ? s.getNombre() : "");
+        dto.setFecha(a.getFecha());
+        dto.setCartasObtenidas(a.getCartasObtenidas());
+        return dto;
     }
 }

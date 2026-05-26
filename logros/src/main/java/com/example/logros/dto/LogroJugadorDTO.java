@@ -1,14 +1,13 @@
 package com.example.logros.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
-public class LogroJugadorResponseDTO {
+public class LogroJugadorDTO {
     private Long id;
-    private String jugadorId;
+    private Long jugadorId;
     private String idLogro;
     private String nombreLogro;
     private LocalDateTime fechaDesbloqueo;

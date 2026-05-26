@@ -1,10 +1,8 @@
 package com.example.logros.controller;
 
-import com.example.logros.dto.LogroJugadorRequestDTO;
-import com.example.logros.dto.LogroJugadorResponseDTO;
+import com.example.logros.dto.LogroJugadorDTO;
 import com.example.logros.service.LogroJugadorService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,33 +10,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/logros-jugador")
-@RequiredArgsConstructor
+@RequestMapping("/api/v1/logros-jugador")
 public class LogroJugadorController {
-    private final LogroJugadorService logroJugadorService;
+    @Autowired
+    private LogroJugadorService logroJugadorService;
 
     @GetMapping("/{jugadorId}")
-    public ResponseEntity<List<LogroJugadorResponseDTO>> listarPorJugador(@PathVariable String jugadorId) {
-        List<LogroJugadorResponseDTO> list = logroJugadorService.listarPorJugador(jugadorId);
-        return list.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(list);
+    public ResponseEntity<List<LogroJugadorDTO>> listarPorJugador(@PathVariable Long jugadorId) {
+        return ResponseEntity.ok(logroJugadorService.listarPorJugador(jugadorId));
     }
 
-    @PostMapping("/desbloquear")
-    public ResponseEntity<LogroJugadorResponseDTO> desbloquear(@Valid @RequestBody LogroJugadorRequestDTO dto) {
+    @PostMapping("/{jugadorId}/{idLogro}")
+    public ResponseEntity<LogroJugadorDTO> desbloquear(@PathVariable Long jugadorId,
+                                                       @PathVariable String idLogro) {
         try {
-            LogroJugadorResponseDTO nuevo = logroJugadorService.desbloquear(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+            return ResponseEntity.status(HttpStatus.CREATED).body(logroJugadorService.desbloquear(jugadorId, idLogro));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 
     @PostMapping("/verificar/{jugadorId}/{tipo}/{valor}")
-    public ResponseEntity<List<LogroJugadorResponseDTO>> verificarYDesbloquear(
-            @PathVariable String jugadorId,
-            @PathVariable String tipo,
-            @PathVariable Integer valor) {
-        List<LogroJugadorResponseDTO> nuevos = logroJugadorService.verificarYDesbloquear(jugadorId, tipo, valor);
-        return ResponseEntity.ok(nuevos);
+    public ResponseEntity<List<LogroJugadorDTO>> verificar(@PathVariable Long jugadorId,
+                                                           @PathVariable String tipo,
+                                                           @PathVariable Integer valor) {
+        return ResponseEntity.ok(logroJugadorService.verificarYDesbloquear(jugadorId, tipo, valor));
     }
 }

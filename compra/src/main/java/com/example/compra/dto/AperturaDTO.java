@@ -1,12 +1,11 @@
 package com.example.compra.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
-public class AperturaResponseDTO {
+public class AperturaDTO {
     private Long id;
     private Long jugadorId;
     private Long suministroId;

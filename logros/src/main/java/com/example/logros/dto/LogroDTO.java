@@ -1,15 +1,19 @@
 package com.example.logros.dto;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-public class LogroResponseDTO {
+public class LogroDTO {
+    @NotBlank
     private String idLogro;
+    @NotBlank
     private String nombre;
     private String descripcion;
+    @NotBlank
     private String condicionTipo;
+    @NotNull
     private Integer condicionValor;
     private Integer recompensaMonedas;
     private Integer recompensaExp;

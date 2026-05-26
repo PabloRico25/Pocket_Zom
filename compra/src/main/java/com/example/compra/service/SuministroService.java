@@ -1,48 +1,43 @@
 package com.example.compra.service;
 
-import com.example.compra.dto.SuministroRequestDTO;
-import com.example.compra.dto.SuministroResponseDTO;
+import com.example.compra.dto.SuministroDTO;
 import com.example.compra.model.Suministro;
 import com.example.compra.repository.SuministroRepository;
-import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class SuministroService {
-    private final SuministroRepository suministroRepository;
+    @Autowired
+    private SuministroRepository suministroRepository;
 
-    public List<SuministroResponseDTO> listar() {
-        return suministroRepository.findAll().stream()
-                .map(this::convertirADTO).collect(Collectors.toList());
+    public List<SuministroDTO> listar() {
+        return suministroRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public SuministroResponseDTO obtener(Long id) {
-        Suministro s = suministroRepository.findById(id)
+    public SuministroDTO obtener(Long id) {
+        return suministroRepository.findById(id).map(this::toDTO)
                 .orElseThrow(() -> new RuntimeException("Suministro no encontrado"));
-        return convertirADTO(s);
     }
 
-    @Transactional
-    public SuministroResponseDTO crear(SuministroRequestDTO dto) {
+    public SuministroDTO crear(SuministroDTO dto) {
         Suministro s = new Suministro();
         s.setNombre(dto.getNombre());
         s.setCosto(dto.getCosto());
         s.setCantidadCartas(dto.getCantidadCartas());
         s.setProbabilidades(dto.getProbabilidades());
         s = suministroRepository.save(s);
-        log.info("Suministro creado: {}", s.getNombre());
-        return convertirADTO(s);
+        return toDTO(s);
     }
 
-    @Transactional
-    public SuministroResponseDTO actualizar(Long id, SuministroRequestDTO dto) {
+    public SuministroDTO actualizar(Long id, SuministroDTO dto) {
         Suministro s = suministroRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Suministro no encontrado"));
         s.setNombre(dto.getNombre());
@@ -50,26 +45,25 @@ public class SuministroService {
         s.setCantidadCartas(dto.getCantidadCartas());
         s.setProbabilidades(dto.getProbabilidades());
         s = suministroRepository.save(s);
-        log.info("Suministro actualizado: {}", s.getNombre());
-        return convertirADTO(s);
+        return toDTO(s);
     }
 
-    @Transactional
     public void eliminar(Long id) {
-        if (!suministroRepository.existsById(id))
-            throw new RuntimeException("Suministro no encontrado");
+        if (!suministroRepository.existsById(id)) throw new RuntimeException("Suministro no encontrado");
         suministroRepository.deleteById(id);
-        log.info("Suministro eliminado: {}", id);
     }
 
-    // Necesario para obtener la entidad completa
     public Suministro obtenerEntidad(Long id) {
-        return suministroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Suministro no encontrado"));
+        return suministroRepository.findById(id).orElseThrow(() -> new RuntimeException("Suministro no encontrado"));
     }
 
-    private SuministroResponseDTO convertirADTO(Suministro s) {
-        return new SuministroResponseDTO(s.getId(), s.getNombre(), s.getCosto(),
-                s.getCantidadCartas(), s.getProbabilidades());
+    private SuministroDTO toDTO(Suministro s) {
+        SuministroDTO dto = new SuministroDTO();
+        dto.setId(s.getId());
+        dto.setNombre(s.getNombre());
+        dto.setCosto(s.getCosto());
+        dto.setCantidadCartas(s.getCantidadCartas());
+        dto.setProbabilidades(s.getProbabilidades());
+        return dto;
     }
 }

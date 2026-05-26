@@ -1,27 +1,24 @@
 package com.example.publicacion.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "publicaciones")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Publicacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "vendedor_id", nullable = false)
     private Long vendedorId;
-
-    @Column(name = "codigo_carta", nullable = false)
     private String codigoCarta;
-
     private Integer precio;
-
-    private String estado; // "ACTIVA", "VENDIDA"
-
-    @Column(name = "fecha_publicacion")
+    private String estado;
     private LocalDateTime fechaPublicacion = LocalDateTime.now();
 }
