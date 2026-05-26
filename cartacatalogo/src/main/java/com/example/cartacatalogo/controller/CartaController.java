@@ -19,7 +19,9 @@ public class CartaController {
     @GetMapping
     public ResponseEntity<List<CartaDTO>> listar() {
         List<CartaDTO> cartas = cartaService.listar();
-        if (cartas.isEmpty()) return ResponseEntity.noContent().build();
+        if (cartas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(cartas);
     }
 
@@ -55,7 +57,9 @@ public class CartaController {
         try {
             return ResponseEntity.ok(cartaService.actualizar(id, dto));
         } catch (RuntimeException e) {
-            if (e.getMessage().contains("no encontrada")) return ResponseEntity.notFound().build();
+            if (e.getMessage().contains("no encontrada")) {
+                return ResponseEntity.notFound().build();
+            }
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
