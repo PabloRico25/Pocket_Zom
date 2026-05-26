@@ -3,7 +3,7 @@ package com.example.perfil.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "jugadores")
@@ -35,7 +35,4 @@ public class Jugador {
 
     @NotNull(message = "El rol es obligatorio")
     private Long rolId;
-
-    @PastOrPresent(message = "La fecha de registro no puede ser futura")
-    private LocalDateTime fechaRegistro = LocalDateTime.now();
 }

@@ -34,7 +34,6 @@ public class JugadorService {
         jugador.setPassword(dto.getPassword()); // texto plano (solo académico)
         jugador.setNivel(1);
         jugador.setRolId(rolId);
-        jugador.setFechaRegistro(LocalDateTime.now());
         jugador = jugadorRepository.save(jugador);
         log.info("Jugador registrado: {}", jugador.getNombreUsuario());
         return toDTO(jugador);
@@ -67,7 +66,6 @@ public class JugadorService {
         dto.setEmail(jugador.getEmail());
         dto.setNivel(jugador.getNivel());
         dto.setRolId(jugador.getRolId());
-        dto.setFechaRegistro(jugador.getFechaRegistro());
         // Cargar nombre del rol
         rolRepository.findById(jugador.getRolId()).ifPresent(rol -> dto.setRolNombre(rol.getNombre()));
         return dto;
