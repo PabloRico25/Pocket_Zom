@@ -10,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,13 +25,16 @@ public class JugadorService {
         if (jugadorRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new RuntimeException("Email ya registrado: " + dto.getEmail());
         }
-        Long rolId = dto.getRolId() != null ? dto.getRolId() : 1L; // por defecto ROLE_PLAYER
+
+        Rol rol = rolRepository.findByNombre("ROLE_PLAYER")
+                .orElseThrow(() -> new RuntimeException("Rol ROLE_PLAYER no encontrado"));
+
         Jugador jugador = new Jugador();
         jugador.setNombreUsuario(dto.getNombreUsuario());
         jugador.setEmail(dto.getEmail());
-        jugador.setPassword(dto.getPassword()); // texto plano (solo académico)
+        jugador.setPassword(dto.getPassword());
         jugador.setNivel(1);
-        jugador.setRolId(rolId);
+        jugador.setRolId(rol.getId());
         jugador = jugadorRepository.save(jugador);
         log.info("Jugador registrado: {}", jugador.getNombreUsuario());
         return toDTO(jugador);
@@ -53,7 +54,6 @@ public class JugadorService {
         return jugadorRepository.existsById(id);
     }
 
-    //Método interno para obtener entidad (usado por FaccionService)
     public Jugador obtenerEntidad(Long id) {
         return jugadorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Jugador no encontrado con id: " + id));
@@ -66,7 +66,6 @@ public class JugadorService {
         dto.setEmail(jugador.getEmail());
         dto.setNivel(jugador.getNivel());
         dto.setRolId(jugador.getRolId());
-        // Cargar nombre del rol
         rolRepository.findById(jugador.getRolId()).ifPresent(rol -> dto.setRolNombre(rol.getNombre()));
         return dto;
     }

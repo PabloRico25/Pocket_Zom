@@ -21,7 +21,6 @@ public class Faccion {
     @Column(unique = true, nullable = false, length = 50)
     private String nombre;
 
-    @NotNull(message = "El líder es obligatorio")
     private Long liderId;
 
     @Min(value = 0, message = "El nivel de infección no puede ser negativo")

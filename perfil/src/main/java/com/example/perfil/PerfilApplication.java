@@ -20,19 +20,17 @@ public class PerfilApplication {
     @Bean
     public CommandLineRunner initRoles(RolRepository rolRepository) {
         return args -> {
-
             if (rolRepository.findByNombre("ROLE_PLAYER").isEmpty()) {
                 Rol playerRol = new Rol();
                 playerRol.setNombre("ROLE_PLAYER");
                 rolRepository.save(playerRol);
-                System.out.println("ROLE_PLAYER creado con ID: " + playerRol.getId() + ")");
+                System.out.println("ROLE_PLAYER creado con ID: " + playerRol.getId());
             }
-
             if (rolRepository.findByNombre("ROLE_ADMIN").isEmpty()) {
                 Rol adminRol = new Rol();
                 adminRol.setNombre("ROLE_ADMIN");
                 rolRepository.save(adminRol);
-                System.out.println("ROLE_ADMIN creado con ID: " + adminRol.getId() + ")");
+                System.out.println("ROLE_ADMIN creado con ID: " + adminRol.getId());
             }
         };
     }

@@ -51,6 +51,12 @@ public class MovimientoService {
         movimiento.setMonto(dto.getMonto());
         movimiento.setConcepto(dto.getConcepto());
         movimiento.setFecha(LocalDateTime.now());
+
+        // ** Asignar valores a las columnas extra de la tabla **
+        movimiento.setTipoMovimiento(dto.getTipo());            // valor igual al tipo
+        movimiento.setDescripcion(dto.getConcepto());           // usar el concepto como descripción
+        movimiento.setBilleterasIdBilletera("N/A");             // valor por defecto
+
         movimiento = movimientoRepository.save(movimiento);
 
         // 6. Completar el DTO con los datos generados

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-
 @Entity
 @Table(name = "jugadores")
 @Data
@@ -25,8 +24,8 @@ public class Jugador {
     private String email;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 4, max = 255, message = "La contraseña debe tener entre 4 y 255 caracteres")
-    @Column(nullable = false, length = 255)
+    @Size(min = 4, max = 30, message = "La contraseña debe tener entre 4 y 30 caracteres")
+    @Column(nullable = false, length = 30)
     private String password;
 
     @Min(value = 1, message = "El nivel mínimo es 1")
@@ -34,5 +33,5 @@ public class Jugador {
     private Integer nivel = 1;
 
     @NotNull(message = "El rol es obligatorio")
-    private Long rolId;
+    private Long rolId; 
 }

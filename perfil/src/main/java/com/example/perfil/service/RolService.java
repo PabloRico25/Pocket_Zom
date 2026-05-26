@@ -18,51 +18,24 @@ public class RolService {
     private final RolRepository rolRepository;
 
     public List<RolDTO> listar() {
-        return rolRepository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        return rolRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     public RolDTO obtenerPorId(Long id) {
-        Rol rol = rolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado con id: " + id));
+        Rol rol = rolRepository.findById(id).orElseThrow(() -> new RuntimeException("Rol no encontrado"));
         return toDTO(rol);
     }
 
     @Transactional
     public RolDTO crear(RolDTO dto) {
         if (rolRepository.findByNombre(dto.getNombre()).isPresent()) {
-            throw new RuntimeException("Ya existe un rol con el nombre: " + dto.getNombre());
+            throw new RuntimeException("Rol ya existe");
         }
         Rol rol = new Rol();
         rol.setNombre(dto.getNombre());
         rol = rolRepository.save(rol);
         log.info("Rol creado: {}", rol.getNombre());
         return toDTO(rol);
-    }
-
-    @Transactional
-    public RolDTO actualizar(Long id, RolDTO dto) {
-        Rol rol = rolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado con id: " + id));
-        // Si el nombre cambia, verificar que no exista otro con el mismo nombre
-        if (!rol.getNombre().equals(dto.getNombre()) &&
-                rolRepository.findByNombre(dto.getNombre()).isPresent()) {
-            throw new RuntimeException("Ya existe un rol con el nombre: " + dto.getNombre());
-        }
-        rol.setNombre(dto.getNombre());
-        rol = rolRepository.save(rol);
-        log.info("Rol actualizado: {}", rol.getNombre());
-        return toDTO(rol);
-    }
-
-    @Transactional
-    public void eliminar(Long id) {
-        if (!rolRepository.existsById(id)) {
-            throw new RuntimeException("Rol no encontrado con id: " + id);
-        }
-        rolRepository.deleteById(id);
-        log.info("Rol eliminado con id: {}", id);
     }
 
     private RolDTO toDTO(Rol rol) {

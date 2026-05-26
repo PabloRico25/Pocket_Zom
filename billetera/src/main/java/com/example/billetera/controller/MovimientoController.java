@@ -23,11 +23,10 @@ public class MovimientoController {
             MovimientoDTO response = movimientoService.registrarMovimiento(jugadorId, dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
-            // Si el mensaje de la excepción indica que la cartera no existe, devolvemos 404
+            // Distinguir errores para devolver 404 o 400
             if (e.getMessage().contains("Cartera no encontrada")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-            // Cualquier otro error de negocio (saldo insuficiente, etc.) devuelve 400
             return ResponseEntity.badRequest().build();
         }
     }
@@ -35,8 +34,7 @@ public class MovimientoController {
     @GetMapping("/{jugadorId}")
     public ResponseEntity<List<MovimientoDTO>> listar(@PathVariable Long jugadorId) {
         try {
-            List<MovimientoDTO> movimientos = movimientoService.listarMovimientos(jugadorId);
-            return ResponseEntity.ok(movimientos);
+            return ResponseEntity.ok(movimientoService.listarMovimientos(jugadorId));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

@@ -35,7 +35,6 @@ public class CarteraService {
                 .orElse(null);
     }
 
-    // Método interno usado por MovimientoService
     public Cartera obtenerEntidad(Long jugadorId) {
         return carteraRepository.findByJugadorId(jugadorId)
                 .orElseThrow(() -> new RuntimeException("Cartera no encontrada para jugador " + jugadorId));
