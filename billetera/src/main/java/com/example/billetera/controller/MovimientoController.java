@@ -1,12 +1,16 @@
 package com.example.billetera.controller;
 
+import com.example.billetera.Cliente.PartidaClient;
+import com.example.billetera.dto.MovimientoDTO;
 import com.example.billetera.model.Movimiento;
 import com.example.billetera.service.MovimientoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -16,9 +20,7 @@ public class MovimientoController {
 
     @Autowired
     private MovimientoService movimientoService;
-
-    @Autowired
-    private PartidaClient partidaClient; // opcional, ejemplo de Feign
+    private PartidaClient partidaClient;
 
     @PostMapping("/{jugadorId}")
     public ResponseEntity<MovimientoDTO> registrar(@PathVariable Long jugadorId,
