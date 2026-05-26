@@ -1,39 +1,36 @@
 package com.example.mazo.controller;
 
-import com.example.mazo.dto.MazoCartaRequestDTO;
-import com.example.mazo.dto.MazoCartaResponseDTO;
+import com.example.mazo.dto.MazoCartaDTO;
 import com.example.mazo.service.MazoCartaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
-@RequestMapping("/api/mazos/{mazoId}/cartas")
+@RequestMapping("/api/v1/mazos/{mazoId}/cartas")
 @RequiredArgsConstructor
 public class MazoCartaController {
     private final MazoCartaService mazoCartaService;
 
     @GetMapping
-    public ResponseEntity<List<MazoCartaResponseDTO>> listar(@PathVariable Long mazoId) {
-        List<MazoCartaResponseDTO> cartas = mazoCartaService.listarCartasDeMazo(mazoId);
+    public ResponseEntity<List<MazoCartaDTO>> listar(@PathVariable Long mazoId) {
+        List<MazoCartaDTO> cartas = mazoCartaService.listarCartas(mazoId);
         if (cartas.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(cartas);
     }
 
+
+
     @PostMapping
-    public ResponseEntity<MazoCartaResponseDTO> agregar(@PathVariable Long mazoId,
-                                                        @Valid @RequestBody MazoCartaRequestDTO dto) {
+    public ResponseEntity<MazoCartaDTO> agregar(@PathVariable Long mazoId,
+                                                @Valid @RequestBody MazoCartaDTO dto) {
         try {
-            MazoCartaResponseDTO nueva = mazoCartaService.agregarCarta(mazoId, dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
+            return ResponseEntity.status(HttpStatus.CREATED).body(mazoCartaService.agregarCarta(mazoId, dto));
         } catch (RuntimeException e) {
-            log.error("Error al agregar carta al mazo: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -55,4 +52,6 @@ public class MazoCartaController {
         mazoCartaService.limpiarMazo(mazoId);
         return ResponseEntity.noContent().build();
     }
+
+
 }

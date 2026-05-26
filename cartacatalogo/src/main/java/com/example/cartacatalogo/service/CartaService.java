@@ -1,7 +1,6 @@
 package com.example.cartacatalogo.service;
 
-import com.example.cartacatalogo.dto.CartaRequestDTO;
-import com.example.cartacatalogo.dto.CartaResponseDTO;
+import com.example.cartacatalogo.dto.CartaDTO;
 import com.example.cartacatalogo.model.Carta;
 import com.example.cartacatalogo.repository.CartaRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,26 +16,31 @@ import java.util.stream.Collectors;
 public class CartaService {
     private final CartaRepository cartaRepository;
 
-    public List<CartaResponseDTO> listar() {
+    public List<CartaDTO> listar() {
+        log.info("Listando todas las cartas");
         return cartaRepository.findAll().stream()
-                .map(this::convertirADTO)
+                .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public CartaResponseDTO obtenerPorId(Long id) {
+    public CartaDTO obtenerPorId(Long id) {
+        log.info("Buscando carta por id: {}", id);
         Carta carta = cartaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Carta no encontrada con id " + id));
-        return convertirADTO(carta);
+        return toDTO(carta);
     }
 
-    public CartaResponseDTO obtenerPorCodigo(String codigo) {
-        Carta carta = cartaRepository.findByCodigo(codigo.toUpperCase().trim())
+    public CartaDTO obtenerPorCodigo(String codigo) {
+        log.info("Buscando carta por código: {}", codigo);
+        String codigoNormalizado = codigo.trim().toUpperCase();
+        Carta carta = cartaRepository.findByCodigo(codigoNormalizado)
                 .orElseThrow(() -> new RuntimeException("Carta no encontrada con código " + codigo));
-        return convertirADTO(carta);
+        return toDTO(carta);
     }
 
     @Transactional
-    public CartaResponseDTO crear(CartaRequestDTO dto) {
+    public CartaDTO crear(CartaDTO dto) {
+        log.info("Creando nueva carta: {}", dto);
         String codigoNormalizado = dto.getCodigo().trim().toUpperCase();
         if (cartaRepository.existsByCodigo(codigoNormalizado)) {
             throw new RuntimeException("El código " + codigoNormalizado + " ya existe");
@@ -50,13 +54,14 @@ public class CartaService {
         carta.setCoste(dto.getCoste() != null ? dto.getCoste() : 0);
         carta.setHabilidad(dto.getHabilidad());
         carta.setActiva(dto.getActiva() != null ? dto.getActiva() : true);
-        Carta guardada = cartaRepository.save(carta);
-        log.info("Carta creada con id: {}", guardada.getId());
-        return convertirADTO(guardada);
+        carta = cartaRepository.save(carta);
+        log.info("Carta creada con id: {}", carta.getId());
+        return toDTO(carta);
     }
 
     @Transactional
-    public CartaResponseDTO actualizar(Long id, CartaRequestDTO dto) {
+    public CartaDTO actualizar(Long id, CartaDTO dto) {
+        log.info("Actualizando carta con id {}: {}", id, dto);
         Carta carta = cartaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Carta no encontrada con id " + id));
         String codigoNormalizado = dto.getCodigo().trim().toUpperCase();
@@ -73,31 +78,32 @@ public class CartaService {
         if (dto.getActiva() != null) {
             carta.setActiva(dto.getActiva());
         }
-        Carta actualizada = cartaRepository.save(carta);
-        log.info("Carta actualizada id: {}", actualizada.getId());
-        return convertirADTO(actualizada);
+        carta = cartaRepository.save(carta);
+        log.info("Carta actualizada con id: {}", carta.getId());
+        return toDTO(carta);
     }
 
     @Transactional
     public void eliminar(Long id) {
+        log.info("Eliminando carta con id: {}", id);
         if (!cartaRepository.existsById(id)) {
             throw new RuntimeException("Carta no encontrada con id " + id);
         }
         cartaRepository.deleteById(id);
-        log.info("Carta eliminada id: {}", id);
+        log.info("Carta eliminada con id: {}", id);
     }
 
-    private CartaResponseDTO convertirADTO(Carta carta) {
-        return new CartaResponseDTO(
-                carta.getId(),
-                carta.getCodigo(),
-                carta.getNombre(),
-                carta.getRaza(),
-                carta.getAtaque(),
-                carta.getDefensa(),
-                carta.getCoste(),
-                carta.getHabilidad(),
-                carta.getActiva()
-        );
+    private CartaDTO toDTO(Carta carta) {
+        CartaDTO dto = new CartaDTO();
+        dto.setId(carta.getId());
+        dto.setCodigo(carta.getCodigo());
+        dto.setNombre(carta.getNombre());
+        dto.setRaza(carta.getRaza());
+        dto.setAtaque(carta.getAtaque());
+        dto.setDefensa(carta.getDefensa());
+        dto.setCoste(carta.getCoste());
+        dto.setHabilidad(carta.getHabilidad());
+        dto.setActiva(carta.getActiva());
+        return dto;
     }
 }
