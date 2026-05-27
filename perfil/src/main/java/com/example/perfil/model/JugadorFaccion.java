@@ -4,11 +4,14 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "jugador_faccion")
 @Data
+@NoArgsConstructor
 public class JugadorFaccion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

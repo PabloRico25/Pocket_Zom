@@ -3,9 +3,12 @@ package com.example.perfil.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
 public class JugadorDTO {
     private Long id;
     @NotBlank

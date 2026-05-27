@@ -5,11 +5,14 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "carteras")
 @Data
+@NoArgsConstructor
 public class Cartera {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

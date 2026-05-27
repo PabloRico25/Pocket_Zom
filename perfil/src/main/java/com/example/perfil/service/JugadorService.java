@@ -10,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -69,4 +72,27 @@ public class JugadorService {
         rolRepository.findById(jugador.getRolId()).ifPresent(rol -> dto.setRolNombre(rol.getNombre()));
         return dto;
     }
+
+    public List<JugadorDTO> listarTodos() {
+        return jugadorRepository.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public JugadorDTO obtenerPorId(Long id) {
+        Jugador jugador = jugadorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Jugador no encontrado con id: " + id));
+        return toDTO(jugador);
+    }
+
+    @Transactional
+    public void eliminarJugador(Long id) {
+        if (!jugadorRepository.existsById(id)) {
+            throw new RuntimeException("Jugador no encontrado con id: " + id);
+        }
+        jugadorRepository.deleteById(id);
+        log.info("Jugador con id {} eliminado", id);
+    }
+
+
 }

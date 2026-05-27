@@ -11,11 +11,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cartas_usuario")
 @Data
+@NoArgsConstructor
 public class CartaUsuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

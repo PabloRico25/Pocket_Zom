@@ -3,10 +3,12 @@ package com.example.cartacatalogo.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "cartas")
 @Data
+@NoArgsConstructor
 public class Carta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
