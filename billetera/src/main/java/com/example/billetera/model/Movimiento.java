@@ -3,11 +3,14 @@ package com.example.billetera.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "movimientos")
 @Data
+@NoArgsConstructor
 public class Movimiento {
     @Id
     @NotBlank(message = "El ID de transacción es obligatorio")

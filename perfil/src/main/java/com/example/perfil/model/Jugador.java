@@ -3,10 +3,12 @@ package com.example.perfil.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "jugadores")
 @Data
+@NoArgsConstructor
 public class Jugador {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

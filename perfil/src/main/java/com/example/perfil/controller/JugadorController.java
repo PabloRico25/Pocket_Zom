@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/jugadores")
 @RequiredArgsConstructor
@@ -35,5 +37,29 @@ public class JugadorController {
     @GetMapping("/{id}/existe")
     public ResponseEntity<Boolean> existe(@PathVariable Long id) {
         return ResponseEntity.ok(jugadorService.existeJugador(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<JugadorDTO>> listarTodos() {
+        return ResponseEntity.ok(jugadorService.listarTodos());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<JugadorDTO> obtenerPorId(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(jugadorService.obtenerPorId(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        try {
+            jugadorService.eliminarJugador(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

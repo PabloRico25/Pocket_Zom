@@ -7,10 +7,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "facciones")
 @Data
+@NoArgsConstructor
 public class Faccion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
