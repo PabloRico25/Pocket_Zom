@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,26 +15,36 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JugadorFaccionService {
     private final JugadorFaccionRepository jugadorFaccionRepository;
+    private final JugadorService jugadorService;
+    private final FaccionService faccionService;
 
     @Transactional
     public void unir(Long jugadorId, Long faccionId) {
+        // Validar que el jugador exista
+        if (!jugadorService.existeJugador(jugadorId)) {
+            throw new RuntimeException("El jugador " + jugadorId + " no existe");
+        }
+        // Validar que la facción exista (el método lanza excepción si no existe)
+        faccionService.obtenerPorId(faccionId);  // si no existe, lanza RuntimeException
+
+        // Verificar que no esté ya unido
         if (jugadorFaccionRepository.findByJugadorIdAndFaccionId(jugadorId, faccionId).isPresent()) {
             throw new RuntimeException("El jugador ya pertenece a esta facción");
         }
+
         JugadorFaccion jf = new JugadorFaccion();
         jf.setJugadorId(jugadorId);
         jf.setFaccionId(faccionId);
-        jf.setFechaIngreso(LocalDateTime.now());
         jugadorFaccionRepository.save(jf);
-        log.info("Jugador {} se unió a la facción {}", jugadorId, faccionId);
+        log.info("Jugador {} unido a facción {}", jugadorId, faccionId);
     }
 
     @Transactional
     public void salir(Long jugadorId, Long faccionId) {
         JugadorFaccion jf = jugadorFaccionRepository.findByJugadorIdAndFaccionId(jugadorId, faccionId)
-                .orElseThrow(() -> new RuntimeException("El jugador no pertenece a esta facción"));
+                .orElseThrow(() -> new RuntimeException("El jugador no pertenece a esa facción"));
         jugadorFaccionRepository.delete(jf);
-        log.info("Jugador {} salió de la facción {}", jugadorId, faccionId);
+        log.info("Jugador {} salió de facción {}", jugadorId, faccionId);
     }
 
     public List<Long> listarFaccionesDeJugador(Long jugadorId) {

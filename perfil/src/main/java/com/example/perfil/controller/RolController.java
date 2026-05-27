@@ -38,23 +38,4 @@ public class RolController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<RolDTO> actualizar(@PathVariable Long id, @Valid @RequestBody RolDTO dto) {
-        try {
-            return ResponseEntity.ok(rolService.actualizar(id, dto));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        try {
-            rolService.eliminar(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 }

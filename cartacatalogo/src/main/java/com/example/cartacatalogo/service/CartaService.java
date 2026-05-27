@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,33 +18,29 @@ public class CartaService {
     private final CartaRepository cartaRepository;
 
     public List<CartaDTO> listar() {
-        log.info("Listando todas las cartas");
         return cartaRepository.findAll().stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     public CartaDTO obtenerPorId(Long id) {
-        log.info("Buscando carta por id: {}", id);
         Carta carta = cartaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Carta no encontrada con id " + id));
+                .orElseThrow(() -> new RuntimeException("Carta no encontrada" + id));
         return toDTO(carta);
     }
 
     public CartaDTO obtenerPorCodigo(String codigo) {
-        log.info("Buscando carta por código: {}", codigo);
         String codigoNormalizado = codigo.trim().toUpperCase();
         Carta carta = cartaRepository.findByCodigo(codigoNormalizado)
-                .orElseThrow(() -> new RuntimeException("Carta no encontrada con código " + codigo));
+                .orElseThrow(() -> new RuntimeException("Carta no encontrada" + codigo));
         return toDTO(carta);
     }
 
     @Transactional
     public CartaDTO crear(CartaDTO dto) {
-        log.info("Creando nueva carta: {}", dto);
         String codigoNormalizado = dto.getCodigo().trim().toUpperCase();
         if (cartaRepository.existsByCodigo(codigoNormalizado)) {
-            throw new RuntimeException("El código " + codigoNormalizado + " ya existe");
+            throw new RuntimeException(codigoNormalizado + " ya existe");
         }
         Carta carta = new Carta();
         carta.setCodigo(codigoNormalizado);
@@ -55,18 +52,17 @@ public class CartaService {
         carta.setHabilidad(dto.getHabilidad());
         carta.setActiva(dto.getActiva() != null ? dto.getActiva() : true);
         carta = cartaRepository.save(carta);
-        log.info("Carta creada con id: {}", carta.getId());
+        log.info("Carta creada {}", carta.getId());
         return toDTO(carta);
     }
 
     @Transactional
     public CartaDTO actualizar(Long id, CartaDTO dto) {
-        log.info("Actualizando carta con id {}: {}", id, dto);
         Carta carta = cartaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Carta no encontrada con id " + id));
+                .orElseThrow(() -> new RuntimeException("Carta no encontrada" + id));
         String codigoNormalizado = dto.getCodigo().trim().toUpperCase();
         if (!carta.getCodigo().equals(codigoNormalizado) && cartaRepository.existsByCodigo(codigoNormalizado)) {
-            throw new RuntimeException("El código " + codigoNormalizado + " ya existe");
+            throw new RuntimeException(codigoNormalizado + " ya existe");
         }
         carta.setCodigo(codigoNormalizado);
         carta.setNombre(dto.getNombre());
@@ -79,18 +75,17 @@ public class CartaService {
             carta.setActiva(dto.getActiva());
         }
         carta = cartaRepository.save(carta);
-        log.info("Carta actualizada con id: {}", carta.getId());
+        log.info("Carta actualizada {}", carta.getId());
         return toDTO(carta);
     }
 
     @Transactional
     public void eliminar(Long id) {
-        log.info("Eliminando carta con id: {}", id);
         if (!cartaRepository.existsById(id)) {
-            throw new RuntimeException("Carta no encontrada con id " + id);
+            throw new RuntimeException("Carta no encontrada" + id);
         }
         cartaRepository.deleteById(id);
-        log.info("Carta eliminada con id: {}", id);
+        log.info("Carta eliminada{}", id);
     }
 
     private CartaDTO toDTO(Carta carta) {
