@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -48,8 +49,13 @@ public class PartidaService {
     }
 
     public PartidaDTO obtenerPorId(Long id) {
-        Partida p = partidaRepository.findById(id).orElseThrow(() -> new RuntimeException("Partida no encontrada"));
-        return toDTO(p);
+        Optional<Partida> optional = partidaRepository.findById(id);
+        if (optional.isPresent()) {
+            Partida p = optional.get();
+            return toDTO(p);
+        } else {
+            return null;
+        }
     }
 
     @Transactional
@@ -77,7 +83,6 @@ public class PartidaService {
         p.setFechaFin(LocalDateTime.now());
         p = partidaRepository.save(p);
 
-        // Premiar al ganador (100 monedas) usando Feign
         try {
             billeteraClient.registrarMovimiento(dto.getGanadorId(), "INGRESO", 100, "Premio por ganar partida " + id);
         } catch (Exception e) {

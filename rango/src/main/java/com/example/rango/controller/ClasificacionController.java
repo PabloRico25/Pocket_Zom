@@ -28,10 +28,11 @@ public class ClasificacionController {
 
     @PostMapping("/{jugadorId}")
     public ResponseEntity<ClasificacionDTO> crear(@PathVariable Long jugadorId) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(clasificacionService.crearClasificacion(jugadorId));
-        } catch (RuntimeException e) {
+        ClasificacionDTO nueva = clasificacionService.crearClasificacion(jugadorId);
+        if (nueva == null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }else{
+            return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
         }
     }
 

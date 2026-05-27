@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -20,19 +21,24 @@ public class ClasificacionService {
     private ClasificacionRepository clasificacionRepository;
 
     public ClasificacionDTO crearClasificacion(Long jugadorId) {
-        if (clasificacionRepository.findByJugadorId(jugadorId).isPresent()) {
-            throw new RuntimeException("La clasificación para el jugador " + jugadorId + " ya existe");
+        Optional<Clasificacion> existente = clasificacionRepository.findByJugadorId(jugadorId);
+        if (existente.isPresent()) {
+            return null;
         }
-        Clasificacion c = new Clasificacion();
-        c.setJugadorId(jugadorId);
-        c = clasificacionRepository.save(c);
-        return toDTO(c);
+        Clasificacion nueva = new Clasificacion();
+        nueva.setJugadorId(jugadorId);
+        Clasificacion guardada = clasificacionRepository.save(nueva);
+        return toDTO(guardada);
     }
 
     public ClasificacionDTO obtenerPorJugador(Long jugadorId) {
-        return clasificacionRepository.findByJugadorId(jugadorId)
-                .map(this::toDTO)
-                .orElse(null);
+        Optional<Clasificacion> optional = clasificacionRepository.findByJugadorId(jugadorId);
+        if (optional.isPresent()) {
+            Clasificacion clasificacion = optional.get();
+            return toDTO(clasificacion);
+        } else {
+            return null;
+        }
     }
 
     public List<ClasificacionDTO> obtenerRanking() {
@@ -45,27 +51,38 @@ public class ClasificacionService {
         return resultado;
     }
 
-    @Transactional
     public void actualizarRanking(Long jugadorId, boolean esVictoria, int cambioElo) {
-        Clasificacion c = clasificacionRepository.findByJugadorId(jugadorId)
-                .orElseThrow(() -> new RuntimeException("Clasificación no encontrada para jugador " + jugadorId));
+        Optional<Clasificacion> optional = clasificacionRepository.findByJugadorId(jugadorId);
+        if (!optional.isPresent()) {
+            log.info("No se encontró clasificación para el jugador: " + jugadorId);
+            return;
+        }
+        Clasificacion c = optional.get();
         int nuevoElo = c.getPuntosElo() + cambioElo;
-        if (nuevoElo < 0) nuevoElo = 0;
+        if (nuevoElo < 0) {
+            nuevoElo = 0;
+        }
         c.setPuntosElo(nuevoElo);
         if (esVictoria) {
             c.setVictorias(c.getVictorias() + 1);
         } else {
             c.setDerrotas(c.getDerrotas() + 1);
         }
-        // Actualizar rango según puntos ELO
-        if (nuevoElo < 1200) c.setRangoActual("Bronce");
-        else if (nuevoElo < 1500) c.setRangoActual("Plata");
-        else if (nuevoElo < 1800) c.setRangoActual("Oro");
-        else if (nuevoElo < 2100) c.setRangoActual("Platino");
-        else c.setRangoActual("Legendario");
+        if (nuevoElo < 1200) {
+            c.setRangoActual("Bronce");
+        } else if (nuevoElo < 1500) {
+            c.setRangoActual("Plata");
+        } else if (nuevoElo < 1800) {
+            c.setRangoActual("Oro");
+        } else if (nuevoElo < 2100) {
+            c.setRangoActual("Platino");
+        } else {
+            c.setRangoActual("Legendario");
+        }
         clasificacionRepository.save(c);
-        log.info("Ranking actualizado para jugador {}: nuevo ELO={}, victorias={}, derrotas={}, rango={}",
-                jugadorId, c.getPuntosElo(), c.getVictorias(), c.getDerrotas(), c.getRangoActual());
+        log.info("Ranking actualizado para jugador " + jugadorId + ": nuevo ELO=" + c.getPuntosElo() +
+                ", victorias=" + c.getVictorias() + ", derrotas=" + c.getDerrotas() +
+                ", rango=" + c.getRangoActual());
     }
 
     private ClasificacionDTO toDTO(Clasificacion c) {
