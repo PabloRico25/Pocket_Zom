@@ -14,18 +14,15 @@ import java.util.List;
 public class ClasificacionController {
     @Autowired
     private ClasificacionService clasificacionService;
-
     @GetMapping("/top")
     public ResponseEntity<List<ClasificacionDTO>> top() {
         return ResponseEntity.ok(clasificacionService.obtenerRanking());
     }
-
     @GetMapping("/{jugadorId}")
     public ResponseEntity<ClasificacionDTO> obtenerPorJugador(@PathVariable Long jugadorId) {
         ClasificacionDTO dto = clasificacionService.obtenerPorJugador(jugadorId);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
-
     @PostMapping("/{jugadorId}")
     public ResponseEntity<ClasificacionDTO> crear(@PathVariable Long jugadorId) {
         ClasificacionDTO nueva = clasificacionService.crearClasificacion(jugadorId);
@@ -35,7 +32,6 @@ public class ClasificacionController {
             return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
         }
     }
-
     @PutMapping("/{jugadorId}")
     public ResponseEntity<Void> actualizar(@PathVariable Long jugadorId, @RequestParam boolean esVictoria, @RequestParam(required = false) Integer cambioElo) {
         try {

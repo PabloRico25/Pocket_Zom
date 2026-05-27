@@ -11,11 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/publicaciones")
+@RequestMapping("/api/v1/publicaciones")
 public class PublicacionController {
     @Autowired
     private PublicacionService publicacionService;
-
     @GetMapping("/activas")
     public ResponseEntity<List<PublicacionDTO>> listarActivas() {
         List<PublicacionDTO> activas = publicacionService.listarActivas();
@@ -24,12 +23,10 @@ public class PublicacionController {
         }
         return ResponseEntity.ok(activas);
     }
-
     @GetMapping("/vendedor/{vendedorId}")
     public ResponseEntity<List<PublicacionDTO>> listarPorVendedor(@PathVariable Long vendedorId) {
         return ResponseEntity.ok(publicacionService.listarPorVendedor(vendedorId));
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<PublicacionDTO> obtener(@PathVariable Long id) {
         PublicacionDTO publicacion = publicacionService.obtenerPorId(id);
@@ -38,7 +35,6 @@ public class PublicacionController {
         }
         return ResponseEntity.ok(publicacion);
     }
-
     @PostMapping
     public ResponseEntity<PublicacionDTO> crear(@Valid @RequestBody PublicacionDTO dto) {
         try {
@@ -47,7 +43,6 @@ public class PublicacionController {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         publicacionService.eliminarPublicacion(id);

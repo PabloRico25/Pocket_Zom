@@ -27,18 +27,14 @@ public class MovimientoService {
         if (!perfilClient.existeJugador(jugadorId)) {
             throw new RuntimeException(jugadorId + " No existe");
         }
-
         Cartera cartera = carteraService.obtenerEntidad(jugadorId);
-
         int cambio = "INGRESO".equalsIgnoreCase(dto.getTipo()) ? dto.getMonto() : -dto.getMonto();
         int nuevoSaldo = cartera.getSaldo() + cambio;
         if (nuevoSaldo < 0) {
             throw new RuntimeException("Saldo insuficiente. Saldo actual: " + cartera.getSaldo());
         }
-
         cartera.setSaldo(nuevoSaldo);
         carteraService.guardar(cartera);
-
         Movimiento movimiento = new Movimiento();
         movimiento.setIdTransaccion(UUID.randomUUID().toString());
         movimiento.setCarteraId(cartera.getId());
@@ -50,13 +46,11 @@ public class MovimientoService {
         movimiento.setDescripcion(dto.getConcepto());
         movimiento.setBilleterasIdBilletera("N/A");
         movimiento = movimientoRepository.save(movimiento);
-
         dto.setIdTransaccion(movimiento.getIdTransaccion());
         dto.setFecha(movimiento.getFecha());
         log.info("Movimiento registrado: {} para jugador {}", movimiento.getIdTransaccion(), jugadorId);
         return dto;
     }
-
     public List<MovimientoDTO> listarMovimientos(Long jugadorId) {
         Cartera cartera = carteraService.obtenerEntidad(jugadorId);
         return movimientoRepository.findByCarteraIdOrderByFechaDesc(cartera.getId())

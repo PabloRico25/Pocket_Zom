@@ -31,11 +31,9 @@ public class MazoService {
 
     @Transactional
     public MazoDTO crearMazo(Long jugadorId, MazoDTO dto) {
-        // Validar jugador con Feign
         if (!perfilClient.existeJugador(jugadorId)) {
             throw new RuntimeException("Jugador no existe");
         }
-        // Si el nuevo mazo es activo, desactivar otros activos del mismo jugador
         if (Boolean.TRUE.equals(dto.getEsActivo())) {
             mazoRepository.findByJugadorIdAndEsActivoTrue(jugadorId)
                     .ifPresent(activo -> {
@@ -53,7 +51,6 @@ public class MazoService {
         log.info("Mazo creado: {} para jugador {}", m.getId(), jugadorId);
         return toDTO(m);
     }
-
     @Transactional
     public MazoDTO actualizarMazo(Long id, MazoDTO dto) {
         Mazo m = mazoRepository.findById(id)
@@ -72,7 +69,6 @@ public class MazoService {
         log.info("Mazo {} actualizado", m.getId());
         return toDTO(m);
     }
-
     @Transactional
     public void eliminarMazo(Long id) {
         if (!mazoRepository.existsById(id)) {
@@ -81,13 +77,10 @@ public class MazoService {
         mazoRepository.deleteById(id);
         log.info("Mazo {} eliminado", id);
     }
-
-    // Para uso interno de MazoCartaService
     public Mazo obtenerEntidad(Long id) {
         return mazoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Mazo no encontrado"));
     }
-
     private MazoDTO toDTO(Mazo m) {
         MazoDTO dto = new MazoDTO();
         dto.setId(m.getId());

@@ -27,7 +27,6 @@ public class PartidaService {
     private BilleteraClient billeteraClient;
     @Autowired
     private RangoClient rangoClient;
-
     public List<PartidaDTO> listarTodas() {
         List<Partida> partidas = partidaRepository.findAll();
         List<PartidaDTO> resultado = new ArrayList<>();
@@ -37,7 +36,6 @@ public class PartidaService {
         }
         return resultado;
     }
-
     public List<PartidaDTO> listarPorJugador(Long jugadorId) {
         List<Partida> partidas = partidaRepository.findByJugador1IdOrJugador2Id(jugadorId, jugadorId);
         List<PartidaDTO> resultado = new ArrayList<>();
@@ -47,7 +45,6 @@ public class PartidaService {
         }
         return resultado;
     }
-
     public PartidaDTO obtenerPorId(Long id) {
         Optional<Partida> optional = partidaRepository.findById(id);
         if (optional.isPresent()) {
@@ -57,7 +54,6 @@ public class PartidaService {
             return null;
         }
     }
-
     @Transactional
     public PartidaDTO crearPartida(PartidaDTO dto) {
         Partida p = new Partida();
@@ -71,7 +67,6 @@ public class PartidaService {
         log.info("Partida creada: {} entre {} y {}", p.getId(), p.getJugador1Id(), p.getJugador2Id());
         return toDTO(p);
     }
-
     @Transactional
     public PartidaDTO finalizarPartida(Long id, FinalizarPartidaDTO dto) {
         Partida p = partidaRepository.findById(id).orElseThrow(() -> new RuntimeException("Partida no encontrada"));
@@ -88,7 +83,6 @@ public class PartidaService {
         } catch (Exception e) {
             log.error("Error al premiar al ganador en billetera: {}", e.getMessage());
         }
-
         try {
             Long perdedorId = p.getJugador1Id().equals(dto.getGanadorId()) ? p.getJugador2Id() : p.getJugador1Id();
             rangoClient.actualizarRanking(dto.getGanadorId(), true, 10);
@@ -100,12 +94,10 @@ public class PartidaService {
         log.info("Partida {} finalizada. Ganador: {}", id, dto.getGanadorId());
         return toDTO(p);
     }
-
     public void eliminarPartida(Long id) {
         if (!partidaRepository.existsById(id)) throw new RuntimeException("Partida no encontrada");
         partidaRepository.deleteById(id);
     }
-
     private PartidaDTO toDTO(Partida p) {
         PartidaDTO dto = new PartidaDTO();
         dto.setId(p.getId());

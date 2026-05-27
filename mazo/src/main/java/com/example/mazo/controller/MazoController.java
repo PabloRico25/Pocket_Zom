@@ -14,18 +14,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MazoController {
     private final MazoService mazoService;
-
     @GetMapping("/jugador/{jugadorId}")
     public ResponseEntity<List<MazoDTO>> listarPorJugador(@PathVariable Long jugadorId) {
         return ResponseEntity.ok(mazoService.listarPorJugador(jugadorId));
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<MazoDTO> obtener(@PathVariable Long id) {
         MazoDTO dto = mazoService.obtenerPorId(id);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
-
     @PostMapping("/{jugadorId}")
     public ResponseEntity<MazoDTO> crear(@PathVariable Long jugadorId, @Valid @RequestBody MazoDTO dto) {
         try {
@@ -35,7 +32,6 @@ public class MazoController {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @PutMapping("/{id}")
     public ResponseEntity<MazoDTO> actualizar(@PathVariable Long id, @Valid @RequestBody MazoDTO dto) {
         try {
@@ -47,7 +43,6 @@ public class MazoController {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         try {

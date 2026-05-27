@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class PublicacionService {
     @Autowired
     private PublicacionRepository publicacionRepository;
-
     public List<PublicacionDTO> listarActivas() {
         List<Publicacion> publicaciones = publicacionRepository.findByEstado("ACTIVA");
         List<PublicacionDTO> resultado = new ArrayList<>();
@@ -30,7 +29,6 @@ public class PublicacionService {
         }
         return resultado;
     }
-
     public List<PublicacionDTO> listarPorVendedor(Long vendedorId) {
         List<Publicacion> publicaciones = publicacionRepository.findByVendedorId(vendedorId);
         List<PublicacionDTO> resultado = new ArrayList<>();
@@ -40,7 +38,6 @@ public class PublicacionService {
         }
         return resultado;
     }
-
     public PublicacionDTO obtenerPorId(Long id) {
         Optional<Publicacion> optional = publicacionRepository.findById(id);
         if (optional.isPresent()) {
@@ -49,7 +46,6 @@ public class PublicacionService {
         }
         return null;
     }
-
     public PublicacionDTO crearPublicacion(PublicacionDTO dto) {
         Publicacion p = new Publicacion();
         p.setVendedorId(dto.getVendedorId());
@@ -60,7 +56,6 @@ public class PublicacionService {
         p = publicacionRepository.save(p);
         return toDTO(p);
     }
-
     public void eliminarPublicacion(Long id) {
         Optional<Publicacion> optional = publicacionRepository.findById(id);
         if (!optional.isPresent()) {
@@ -75,14 +70,12 @@ public class PublicacionService {
         publicacionRepository.delete(publicacion);
         log.info("Publicación eliminada: " + id);
     }
-
     public Publicacion marcarComoVendida(Long id) {
         Publicacion p = publicacionRepository.findByIdAndEstado(id, "ACTIVA")
                 .orElseThrow(() -> new RuntimeException("Publicación no activa"));
         p.setEstado("VENDIDA");
         return publicacionRepository.save(p);
     }
-
     private PublicacionDTO toDTO(Publicacion p) {
         PublicacionDTO dto = new PublicacionDTO();
         dto.setId(p.getId());

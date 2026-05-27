@@ -20,14 +20,11 @@ public class JugadorFaccionService {
 
     @Transactional
     public void unir(Long jugadorId, Long faccionId) {
-        // Validar que el jugador exista
         if (!jugadorService.existeJugador(jugadorId)) {
             throw new RuntimeException("El jugador " + jugadorId + " no existe");
         }
-        // Validar que la facción exista (el método lanza excepción si no existe)
-        faccionService.obtenerPorId(faccionId);  // si no existe, lanza RuntimeException
+        faccionService.obtenerPorId(faccionId);
 
-        // Verificar que no esté ya unido
         if (jugadorFaccionRepository.findByJugadorIdAndFaccionId(jugadorId, faccionId).isPresent()) {
             throw new RuntimeException("El jugador ya pertenece a esta facción");
         }

@@ -19,7 +19,6 @@ public class MazoCartaService {
     private final MazoCartaRepository mazoCartaRepository;
     private final MazoService mazoService;
     private final InventarioClient inventarioClient;
-
     @Transactional
     public MazoCartaDTO agregarCarta(Long mazoId, MazoCartaDTO dto) {
         Mazo mazo = mazoService.obtenerEntidad(mazoId);
@@ -45,7 +44,6 @@ public class MazoCartaService {
             return toDTO(nueva);
         }
     }
-
     @Transactional
     public void quitarCarta(Long mazoId, String codigoCarta, Integer cantidad) {
         String codigo = codigoCarta.trim().toUpperCase();
@@ -61,19 +59,16 @@ public class MazoCartaService {
             log.info("Cantidad de {} reducida a {} en mazo {}", codigo, nuevaCantidad, mazoId);
         }
     }
-
     public List<MazoCartaDTO> listarCartas(Long mazoId) {
         return mazoCartaRepository.findByMazoId(mazoId).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-
     @Transactional
     public void limpiarMazo(Long mazoId) {
         mazoCartaRepository.deleteByMazoId(mazoId);
         log.info("Mazo {} limpiado", mazoId);
     }
-
     private MazoCartaDTO toDTO(MazoCarta mc) {
         MazoCartaDTO dto = new MazoCartaDTO();
         dto.setId(mc.getId());

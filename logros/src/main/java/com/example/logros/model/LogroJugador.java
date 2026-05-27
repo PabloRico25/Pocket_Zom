@@ -16,7 +16,7 @@ public class LogroJugador {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long jugadorId;            // referencia lógica a Jugador
-    private String idLogro;            // referencia lógica a Logro
+    private Long jugadorId;
+    private String idLogro;
     private LocalDateTime fechaDesbloqueo = LocalDateTime.now();
 }

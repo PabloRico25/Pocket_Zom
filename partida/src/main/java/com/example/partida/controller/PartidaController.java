@@ -16,17 +16,14 @@ import java.util.List;
 public class PartidaController {
     @Autowired
     private PartidaService partidaService;
-
     @GetMapping
     public ResponseEntity<List<PartidaDTO>> listarTodas() {
         return ResponseEntity.ok(partidaService.listarTodas());
     }
-
     @GetMapping("/jugador/{jugadorId}")
     public ResponseEntity<List<PartidaDTO>> listarPorJugador(@PathVariable Long jugadorId) {
         return ResponseEntity.ok(partidaService.listarPorJugador(jugadorId));
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<PartidaDTO> obtener(@PathVariable Long id) {
         try {
@@ -35,7 +32,6 @@ public class PartidaController {
             return ResponseEntity.notFound().build();
         }
     }
-
     @PostMapping
     public ResponseEntity<PartidaDTO> crear(@Valid @RequestBody PartidaDTO dto) {
         try {
@@ -44,7 +40,6 @@ public class PartidaController {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @PutMapping("/{id}/finalizar")
     public ResponseEntity<PartidaDTO> finalizar(@PathVariable Long id,
                                                 @Valid @RequestBody FinalizarPartidaDTO dto) {
@@ -54,7 +49,6 @@ public class PartidaController {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         try {

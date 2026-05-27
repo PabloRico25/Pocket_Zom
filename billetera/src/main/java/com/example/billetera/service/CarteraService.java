@@ -28,23 +28,19 @@ public class CarteraService {
         log.info("Cartera creada para jugador {} con id {}", jugadorId, c.getId());
         return toDTO(c);
     }
-
     public CarteraDTO obtenerPorJugador(Long jugadorId) {
         return carteraRepository.findByJugadorId(jugadorId)
                 .map(this::toDTO)
                 .orElse(null);
     }
-
     public Cartera obtenerEntidad(Long jugadorId) {
         return carteraRepository.findByJugadorId(jugadorId)
                 .orElseThrow(() -> new RuntimeException("Cartera no encontrada"));
     }
-
     public Cartera guardar(Cartera cartera) {
         cartera.setUltimaActualizacion(LocalDateTime.now());
         return carteraRepository.save(cartera);
     }
-
     private CarteraDTO toDTO(Cartera c) {
         CarteraDTO dto = new CarteraDTO();
         dto.setId(c.getId());

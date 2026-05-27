@@ -18,22 +18,18 @@ import java.util.stream.Collectors;
 public class FaccionService {
     private final FaccionRepository faccionRepository;
     private final JugadorService jugadorService;
-
     public List<FaccionDTO> listar() {
         return faccionRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
-
     public FaccionDTO obtenerPorId(Long id) {
         Faccion f = faccionRepository.findById(id).orElseThrow(() -> new RuntimeException("Facción no encontrada"));
         return toDTO(f);
     }
-
     @Transactional
     public FaccionDTO crear(FaccionDTO dto) {
         if (faccionRepository.findByNombre(dto.getNombre()).isPresent()) {
             throw new RuntimeException("Facción ya existe");
         }
-        // Si se proporciona un líder, validar que exista
         if (dto.getLiderId() != null && !jugadorService.existeJugador(dto.getLiderId())) {
             throw new RuntimeException("El líder con id " + dto.getLiderId() + " no existe");
         }
@@ -46,7 +42,6 @@ public class FaccionService {
         log.info("Facción creada: {}", f.getNombre());
         return toDTO(f);
     }
-
     @Transactional
     public FaccionDTO actualizar(Long id, FaccionDTO dto) {
         Faccion f = faccionRepository.findById(id).orElseThrow(() -> new RuntimeException("Facción no encontrada"));
@@ -64,7 +59,6 @@ public class FaccionService {
         log.info("Facción actualizada: {}", f.getNombre());
         return toDTO(f);
     }
-
     @Transactional
     public void eliminar(Long id) {
         if (!faccionRepository.existsById(id)) {
@@ -73,7 +67,6 @@ public class FaccionService {
         faccionRepository.deleteById(id);
         log.info("Facción eliminada id: {}", id);
     }
-
     private FaccionDTO toDTO(Faccion f) {
         FaccionDTO dto = new FaccionDTO();
         dto.setId(f.getId());

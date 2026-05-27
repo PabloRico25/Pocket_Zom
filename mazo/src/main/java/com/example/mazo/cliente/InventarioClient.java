@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "inventario", url = "http://localhost:8083")
+@FeignClient(name = "inventario")
 public interface InventarioClient {
     @GetMapping("/api/v1/inventario/cartas/tiene")
     Boolean tieneCarta(@RequestParam Long jugadorId,

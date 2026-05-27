@@ -16,7 +16,7 @@ public class Transaccion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long publicacionId;        // referencia lógica a Publicacion
-    private Long compradorId;          // referencia lógica a Jugador
+    private Long publicacionId;
+    private Long compradorId;
     private LocalDateTime fechaCompra = LocalDateTime.now();
 }

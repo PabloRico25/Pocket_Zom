@@ -14,12 +14,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MazoCartaController {
     private final MazoCartaService mazoCartaService;
-
     @GetMapping
     public ResponseEntity<List<MazoCartaDTO>> listar(@PathVariable Long mazoId) {
         return ResponseEntity.ok(mazoCartaService.listarCartas(mazoId));
     }
-
     @PostMapping
     public ResponseEntity<MazoCartaDTO> agregar(@PathVariable Long mazoId, @Valid @RequestBody MazoCartaDTO dto) {
         try {
@@ -29,7 +27,6 @@ public class MazoCartaController {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @DeleteMapping("/{codigoCarta}")
     public ResponseEntity<Void> quitar(@PathVariable Long mazoId,
                                        @PathVariable String codigoCarta,
@@ -41,7 +38,6 @@ public class MazoCartaController {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @DeleteMapping("/limpiar")
     public ResponseEntity<Void> limpiar(@PathVariable Long mazoId) {
         mazoCartaService.limpiarMazo(mazoId);

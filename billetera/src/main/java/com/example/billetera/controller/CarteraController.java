@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CarteraController {
     private final CarteraService carteraService;
-
     @PostMapping("/{jugadorId}")
     public ResponseEntity<CarteraDTO> crear(@PathVariable Long jugadorId) {
         try {
@@ -21,7 +20,6 @@ public class CarteraController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
-
     @GetMapping("/{jugadorId}")
     public ResponseEntity<CarteraDTO> obtener(@PathVariable Long jugadorId) {
         CarteraDTO dto = carteraService.obtenerPorJugador(jugadorId);

@@ -26,7 +26,6 @@ public class TransaccionService {
     private BilleteraClient billeteraClient;
     @Autowired
     private InventarioClient inventarioClient;
-
     public TransaccionDTO comprar(Long compradorId, Long publicacionId) {
         Publicacion publicacion = publicacionService.marcarComoVendida(publicacionId);
         Transaccion t = new Transaccion();
@@ -34,7 +33,6 @@ public class TransaccionService {
         t.setCompradorId(compradorId);
         t.setFechaCompra(LocalDateTime.now());
         t = transaccionRepository.save(t);
-
         try {
             inventarioClient.transferirCarta(publicacion.getVendedorId(), compradorId,
                     publicacion.getCodigoCarta(), 1);
@@ -42,7 +40,6 @@ public class TransaccionService {
             log.error("Error al transferir carta: {}", e.getMessage());
             throw new RuntimeException("No se pudo transferir la carta", e);
         }
-
         try {
             billeteraClient.registrarMovimiento(compradorId, "EGRESO", publicacion.getPrecio(),
                     "Compra de carta " + publicacion.getCodigoCarta());
@@ -52,15 +49,12 @@ public class TransaccionService {
             log.error("Error al registrar movimientos en billetera: {}", e.getMessage());
             throw new RuntimeException("Error en la transacción de monedas", e);
         }
-
         return toDTO(t, publicacion);
     }
-
     public List<TransaccionDTO> listarComprasPorComprador(Long compradorId) {
         return transaccionRepository.findByCompradorId(compradorId).stream()
                 .map(t -> toDTO(t, null)).collect(java.util.stream.Collectors.toList());
     }
-
     public List<TransaccionDTO> listarVentasPorVendedor(Long vendedorId) {
         List<Publicacion> publicaciones = publicacionService.listarPorVendedor(vendedorId).stream()
                 .map(dto -> {
@@ -73,7 +67,6 @@ public class TransaccionService {
                 .map(t -> toDTO(t, null))
                 .collect(java.util.stream.Collectors.toList());
     }
-
     private TransaccionDTO toDTO(Transaccion t, Publicacion p) {
         TransaccionDTO dto = new TransaccionDTO();
         dto.setId(t.getId());

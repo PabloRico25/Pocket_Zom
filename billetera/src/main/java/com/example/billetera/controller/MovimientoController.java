@@ -15,7 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MovimientoController {
     private final MovimientoService movimientoService;
-
     @PostMapping("/{jugadorId}")
     public ResponseEntity<MovimientoDTO> registrar(@PathVariable Long jugadorId,
                                                    @Valid @RequestBody MovimientoDTO dto) {
@@ -30,7 +29,6 @@ public class MovimientoController {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @GetMapping("/{jugadorId}")
     public ResponseEntity<List<MovimientoDTO>> listar(@PathVariable Long jugadorId) {
         try {

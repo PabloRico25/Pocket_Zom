@@ -25,11 +25,11 @@ public class CartaUsuario {
     private Long id;
 
     @NotNull(message = "El ID del inventario es obligatorio")
-    private Long inventarioId;   // referencia lógica a Inventario
+    private Long inventarioId;
 
     @NotBlank(message = "El código de la carta es obligatorio")
     @Size(max = 20, message = "El código de carta no puede superar 20 caracteres")
-    private String codigoCarta;   // referencia lógica a Carta (MS cartacatalogo)
+    private String codigoCarta;
 
     @Min(value = 1, message = "La cantidad debe ser al menos 1")
     private Integer cantidad = 1;
