@@ -32,7 +32,6 @@ public class InventarioService {
                 .orElse(null);
     }
 
-    // Método interno usado por CartaUsuarioService
     public Inventario obtenerEntidad(Long jugadorId) {
         return inventarioRepository.findByJugadorId(jugadorId)
                 .orElseThrow(() -> new RuntimeException("Inventario no encontrado para jugador " + jugadorId));

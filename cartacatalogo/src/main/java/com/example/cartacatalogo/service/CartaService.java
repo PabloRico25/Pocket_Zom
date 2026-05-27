@@ -101,4 +101,8 @@ public class CartaService {
         dto.setActiva(carta.getActiva());
         return dto;
     }
+
+    public boolean existePorCodigo(String codigo) {
+        return cartaRepository.existsByCodigo(codigo.trim().toUpperCase());
+    }
 }

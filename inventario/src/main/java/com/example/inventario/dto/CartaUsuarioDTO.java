@@ -19,5 +19,5 @@ public class CartaUsuarioDTO {
 
     private Boolean esFavorita;
 
-    private LocalDateTime fechaAdquisicion;   // se asigna en el servidor
+    private LocalDateTime fechaAdquisicion;
 }

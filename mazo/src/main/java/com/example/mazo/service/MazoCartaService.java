@@ -23,48 +23,47 @@ public class MazoCartaService {
     @Transactional
     public MazoCartaDTO agregarCarta(Long mazoId, MazoCartaDTO dto) {
         Mazo mazo = mazoService.obtenerEntidad(mazoId);
-        // Validar que el jugador posea la carta en su inventario
-        if (!inventarioClient.tieneCarta(mazo.getJugadorId(), dto.getCodigoCarta(), dto.getCantidad())) {
+        // Validar que el jugador posea suficientes copias en inventario
+        Boolean tiene = inventarioClient.tieneCarta(mazo.getJugadorId(), dto.getCodigoCarta(), dto.getCantidad());
+        if (!Boolean.TRUE.equals(tiene)) {
             throw new RuntimeException("El jugador no posee suficientes copias de la carta " + dto.getCodigoCarta());
         }
-        String codigoNormalizado = dto.getCodigoCarta().trim().toUpperCase();
-        MazoCarta existente = mazoCartaRepository.findByMazoIdAndCodigoCarta(mazoId, codigoNormalizado)
-                .orElse(null);
+        String codigo = dto.getCodigoCarta().trim().toUpperCase();
+        MazoCarta existente = mazoCartaRepository.findByMazoIdAndCodigoCarta(mazoId, codigo).orElse(null);
         if (existente != null) {
             existente.setCantidad(existente.getCantidad() + dto.getCantidad());
             existente = mazoCartaRepository.save(existente);
-            log.info("Cantidad actualizada para carta {} en mazo {}", codigoNormalizado, mazoId);
+            log.info("Cantidad actualizada para carta {} en mazo {}", codigo, mazoId);
             return toDTO(existente);
         } else {
             MazoCarta nueva = new MazoCarta();
             nueva.setMazoId(mazoId);
-            nueva.setCodigoCarta(codigoNormalizado);
+            nueva.setCodigoCarta(codigo);
             nueva.setCantidad(dto.getCantidad());
             nueva = mazoCartaRepository.save(nueva);
-            log.info("Carta {} añadida al mazo {}", codigoNormalizado, mazoId);
+            log.info("Carta {} añadida al mazo {}", codigo, mazoId);
             return toDTO(nueva);
         }
     }
 
     @Transactional
     public void quitarCarta(Long mazoId, String codigoCarta, Integer cantidad) {
-        String codigoNormalizado = codigoCarta.trim().toUpperCase();
-        MazoCarta carta = mazoCartaRepository.findByMazoIdAndCodigoCarta(mazoId, codigoNormalizado)
+        String codigo = codigoCarta.trim().toUpperCase();
+        MazoCarta carta = mazoCartaRepository.findByMazoIdAndCodigoCarta(mazoId, codigo)
                 .orElseThrow(() -> new RuntimeException("La carta no está en el mazo"));
         int nuevaCantidad = carta.getCantidad() - cantidad;
         if (nuevaCantidad <= 0) {
             mazoCartaRepository.delete(carta);
-            log.info("Carta {} eliminada del mazo {}", codigoNormalizado, mazoId);
+            log.info("Carta {} eliminada del mazo {}", codigo, mazoId);
         } else {
             carta.setCantidad(nuevaCantidad);
             mazoCartaRepository.save(carta);
-            log.info("Cantidad de {} reducida a {} en mazo {}", codigoNormalizado, nuevaCantidad, mazoId);
+            log.info("Cantidad de {} reducida a {} en mazo {}", codigo, nuevaCantidad, mazoId);
         }
     }
 
     public List<MazoCartaDTO> listarCartas(Long mazoId) {
-        return mazoCartaRepository.findByMazoId(mazoId)
-                .stream()
+        return mazoCartaRepository.findByMazoId(mazoId).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }

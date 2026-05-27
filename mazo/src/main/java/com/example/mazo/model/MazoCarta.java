@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Entity
@@ -16,11 +15,12 @@ public class MazoCarta {
     private Long id;
 
     @NotNull(message = "El ID del mazo es obligatorio")
-    private Long mazoId;   // referencia lógica a Mazo
+    @Column(name = "mazo_id")
+    private Long mazoId;
 
     @NotBlank(message = "El código de la carta es obligatorio")
-    @Size(max = 20, message = "El código no puede superar 20 caracteres")
-    private String codigoCarta;   // referencia lógica a Carta (MS cartacatalogo)
+    @Column(name = "codigo_carta")
+    private String codigoCarta;
 
     @Min(value = 1, message = "La cantidad debe ser al menos 1")
     private Integer cantidad = 1;

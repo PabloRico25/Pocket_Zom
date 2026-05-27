@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,38 +22,29 @@ import java.util.stream.Collectors;
 public class CartaUsuarioService {
     private final CartaUsuarioRepository cartaUsuarioRepository;
     private final InventarioRepository inventarioRepository;
-    private final InventarioService inventarioService;
     private final PerfilClient perfilClient;
     private final CartaClient cartaClient;
 
     @Transactional
     public CartaUsuarioDTO agregarCarta(Long jugadorId, CartaUsuarioDTO dto) {
-        // Validar que el jugador existe
         if (!perfilClient.existeJugador(jugadorId)) {
-            throw new RuntimeException("El jugador " + jugadorId + " no existe");
+            throw new RuntimeException("Jugador no existe");
         }
-        // Validar que la carta existe
         if (!cartaClient.existeCarta(dto.getCodigoCarta())) {
             throw new RuntimeException("La carta con código " + dto.getCodigoCarta() + " no existe");
         }
-        // Obtener inventario del jugador
-        Inventario inventario = inventarioService.obtenerEntidad(jugadorId);
+        Inventario inventario = inventarioRepository.findByJugadorId(jugadorId)
+                .orElseThrow(() -> new RuntimeException("Inventario no encontrado. Cree uno primero con POST /inventarios/" + jugadorId));
         String codigoNormalizado = dto.getCodigoCarta().trim().toUpperCase();
-
-        // Buscar si ya tiene esa carta
         CartaUsuario existente = cartaUsuarioRepository.findByInventarioIdAndCodigoCarta(inventario.getId(), codigoNormalizado)
                 .orElse(null);
         if (existente != null) {
-            // Actualizar cantidad
             existente.setCantidad(existente.getCantidad() + dto.getCantidad());
-            if (dto.getEsFavorita() != null) {
-                existente.setEsFavorita(dto.getEsFavorita());
-            }
+            if (dto.getEsFavorita() != null) existente.setEsFavorita(dto.getEsFavorita());
             existente = cartaUsuarioRepository.save(existente);
             log.info("Cantidad actualizada para carta {} en inventario {}", codigoNormalizado, inventario.getId());
             return toDTO(existente);
         } else {
-            // Crear nuevo registro
             CartaUsuario nueva = new CartaUsuario();
             nueva.setInventarioId(inventario.getId());
             nueva.setCodigoCarta(codigoNormalizado);
@@ -67,43 +59,49 @@ public class CartaUsuarioService {
 
     @Transactional
     public void quitarCarta(Long jugadorId, String codigoCarta, Integer cantidad) {
-        Inventario inventario = inventarioService.obtenerEntidad(jugadorId);
+        Inventario inventario = inventarioRepository.findByJugadorId(jugadorId)
+                .orElseThrow(() -> new RuntimeException("Inventario no encontrado"));
         String codigoNormalizado = codigoCarta.trim().toUpperCase();
         CartaUsuario carta = cartaUsuarioRepository.findByInventarioIdAndCodigoCarta(inventario.getId(), codigoNormalizado)
-                .orElseThrow(() -> new RuntimeException("La carta " + codigoNormalizado + " no está en el inventario"));
+                .orElseThrow(() -> new RuntimeException("La carta no está en el inventario"));
         int nuevaCantidad = carta.getCantidad() - cantidad;
         if (nuevaCantidad <= 0) {
             cartaUsuarioRepository.delete(carta);
-            log.info("Carta {} eliminada del inventario {}", codigoNormalizado, inventario.getId());
         } else {
             carta.setCantidad(nuevaCantidad);
             cartaUsuarioRepository.save(carta);
-            log.info("Cantidad de {} reducida a {} en inventario {}", codigoNormalizado, nuevaCantidad, inventario.getId());
         }
     }
 
     public List<CartaUsuarioDTO> listarCartas(Long jugadorId) {
-        Inventario inventario = inventarioService.obtenerEntidad(jugadorId);
+        Inventario inventario = inventarioRepository.findByJugadorId(jugadorId)
+                .orElseThrow(() -> new RuntimeException("Inventario no encontrado"));
         return cartaUsuarioRepository.findByInventarioId(inventario.getId())
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    // Método de transferencia como lo pediste
     @Transactional
     public void transferirCarta(Long jugadorOrigenId, Long jugadorDestinoId, String codigoCarta, Integer cantidad) {
-        // Quitar del origen
         quitarCarta(jugadorOrigenId, codigoCarta, cantidad);
-        // Obtener inventario destino (validación explícita)
-        Inventario inventarioDestino = inventarioRepository.findByJugadorId(jugadorDestinoId)
-                .orElseThrow(() -> new RuntimeException("El jugador destino no tiene inventario"));
-        // Añadir al destino
         CartaUsuarioDTO dto = new CartaUsuarioDTO();
         dto.setCodigoCarta(codigoCarta);
         dto.setCantidad(cantidad);
+        dto.setEsFavorita(false);
         agregarCarta(jugadorDestinoId, dto);
-        log.info("Transferida carta {} desde jugador {} a jugador {}", codigoCarta, jugadorOrigenId, jugadorDestinoId);
+        log.info("Transferida carta {} desde {} a {}", codigoCarta, jugadorOrigenId, jugadorDestinoId);
+    }
+
+    public boolean tieneCarta(Long jugadorId, String codigoCarta, Integer cantidad) {
+        Inventario inventario = inventarioRepository.findByJugadorId(jugadorId)
+                .orElseThrow(() -> new RuntimeException("Inventario no encontrado"));
+        String codigoNormalizado = codigoCarta.trim().toUpperCase();
+        CartaUsuario carta = cartaUsuarioRepository.findByInventarioIdAndCodigoCarta(inventario.getId(), codigoNormalizado)
+                .orElse(null);
+        if (carta == null) return false;
+        int needed = cantidad != null ? cantidad : 1;
+        return carta.getCantidad() >= needed;
     }
 
     private CartaUsuarioDTO toDTO(CartaUsuario cu) {
