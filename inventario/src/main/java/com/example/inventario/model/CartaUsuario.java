@@ -1,15 +1,11 @@
 package com.example.inventario.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,24 +14,25 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "cartas_usuario")
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class CartaUsuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    @Column(name = "id_carta_usuario")
+    private Long idCartaUsuario;
     @NotNull(message = "El ID del inventario es obligatorio")
-    private Long inventarioId;
-
+    @Column(name = "id_inventario", nullable = false)
+    private Long idInventario;
     @NotBlank(message = "El código de la carta es obligatorio")
-    @Size(max = 20, message = "El código de carta no puede superar 20 caracteres")
+    @Size(max = 20, message = "El código no puede superar 20 caracteres")
+    @Column(name = "codigo_carta", nullable = false, length = 20)
     private String codigoCarta;
-
     @Min(value = 1, message = "La cantidad debe ser al menos 1")
+    @Column(name = "cantidad")
     private Integer cantidad = 1;
-
-    @PastOrPresent(message = "La fecha de adquisición no puede ser futura")
-    private LocalDateTime fechaAdquisicion = LocalDateTime.now();
-
+    @Column(name = "es_favorita")
     private Boolean esFavorita = false;
+    @Column(name = "fecha_adquisicion")
+    private LocalDateTime fechaAdquisicion = LocalDateTime.now();
 }

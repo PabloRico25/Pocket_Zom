@@ -1,6 +1,6 @@
 package com.example.inventario.controller;
 
-import com.example.inventario.dto.InventarioDTO;
+import com.example.inventario.model.Inventario;
 import com.example.inventario.service.InventarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,19 +12,16 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InventarioController {
     private final InventarioService inventarioService;
-
-    @PostMapping("/{jugadorId}")
-    public ResponseEntity<InventarioDTO> crear(@PathVariable Long jugadorId) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(inventarioService.crearInventario(jugadorId));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+    @GetMapping("/{idJugador}")
+    public ResponseEntity<Inventario> buscar(@PathVariable Long idJugador) {
+        Inventario inv = inventarioService.buscarPorJugador(idJugador);
+        if (inv == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(inv);
     }
-
-    @GetMapping("/{jugadorId}")
-    public ResponseEntity<InventarioDTO> obtener(@PathVariable Long jugadorId) {
-        InventarioDTO dto = inventarioService.obtenerPorJugador(jugadorId);
-        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+    @PostMapping("/{idJugador}")
+    public ResponseEntity<Inventario> crear(@PathVariable Long idJugador) {
+        Inventario nuevo = inventarioService.crear(idJugador);
+        if (nuevo == null) return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 }

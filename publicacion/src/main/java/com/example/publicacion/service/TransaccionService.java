@@ -1,73 +1,72 @@
 package com.example.publicacion.service;
 
-import com.example.publicacion.client.BilleteraClient;
-import com.example.publicacion.client.InventarioClient;
+import com.example.publicacion.cliente.BilleteraCliente;
+import com.example.publicacion.cliente.InventarioCliente;
+import com.example.publicacion.dto.MovimientoDTO;
 import com.example.publicacion.dto.TransaccionDTO;
 import com.example.publicacion.model.Publicacion;
 import com.example.publicacion.model.Transaccion;
 import com.example.publicacion.repository.TransaccionRepository;
-import jakarta.transaction.Transactional;
+import com.example.publicacion.service.PublicacionService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class TransaccionService {
-    @Autowired
-    private TransaccionRepository transaccionRepository;
-    @Autowired
-    private PublicacionService publicacionService;
-    @Autowired
-    private BilleteraClient billeteraClient;
-    @Autowired
-    private InventarioClient inventarioClient;
+
+    private final TransaccionRepository transaccionRepository;
+    private final PublicacionService publicacionService;
+    private final BilleteraCliente billeteraCliente;
+    private final InventarioCliente inventarioCliente;
+
+    @Transactional
     public TransaccionDTO comprar(Long compradorId, Long publicacionId) {
         Publicacion publicacion = publicacionService.marcarComoVendida(publicacionId);
+        if (publicacion == null) {
+            log.warn("No se pudo marcar como vendida la publicación {}", publicacionId);
+            return null;
+        }
         Transaccion t = new Transaccion();
         t.setPublicacionId(publicacionId);
         t.setCompradorId(compradorId);
         t.setFechaCompra(LocalDateTime.now());
         t = transaccionRepository.save(t);
+
         try {
-            inventarioClient.transferirCarta(publicacion.getVendedorId(), compradorId,
+            inventarioCliente.transferirCarta(publicacion.getVendedorId(), compradorId,
                     publicacion.getCodigoCarta(), 1);
         } catch (Exception e) {
             log.error("Error al transferir carta: {}", e.getMessage());
-            throw new RuntimeException("No se pudo transferir la carta", e);
+            return null;
         }
         try {
-            billeteraClient.registrarMovimiento(compradorId, "EGRESO", publicacion.getPrecio(),
-                    "Compra de carta " + publicacion.getCodigoCarta());
-            billeteraClient.registrarMovimiento(publicacion.getVendedorId(), "INGRESO", publicacion.getPrecio(),
-                    "Venta de carta " + publicacion.getCodigoCarta());
+            billeteraCliente.registrarMovimiento(compradorId,
+                    new MovimientoDTO("EGRESO", publicacion.getPrecio(),
+                            "Compra carta " + publicacion.getCodigoCarta()));
+            billeteraCliente.registrarMovimiento(publicacion.getVendedorId(),
+                    new MovimientoDTO("INGRESO", publicacion.getPrecio(),
+                            "Venta carta " + publicacion.getCodigoCarta()));
         } catch (Exception e) {
-            log.error("Error al registrar movimientos en billetera: {}", e.getMessage());
-            throw new RuntimeException("Error en la transacción de monedas", e);
+            log.error("Error en movimientos de billetera: {}", e.getMessage());
         }
-        return toDTO(t, publicacion);
+        log.info("Compra realizada: publicacion={}, comprador={}", publicacionId, compradorId);
+        return toDTO(t);
     }
-    public List<TransaccionDTO> listarComprasPorComprador(Long compradorId) {
+
+    public List<TransaccionDTO> listarPorComprador(Long compradorId) {
         return transaccionRepository.findByCompradorId(compradorId).stream()
-                .map(t -> toDTO(t, null)).collect(java.util.stream.Collectors.toList());
+                .map(this::toDTO).collect(Collectors.toList());
     }
-    public List<TransaccionDTO> listarVentasPorVendedor(Long vendedorId) {
-        List<Publicacion> publicaciones = publicacionService.listarPorVendedor(vendedorId).stream()
-                .map(dto -> {
-                    Publicacion p = new Publicacion();
-                    p.setId(dto.getId());
-                    return p;
-                }).collect(java.util.stream.Collectors.toList());
-        return publicaciones.stream()
-                .flatMap(p -> transaccionRepository.findByPublicacionId(p.getId()).stream())
-                .map(t -> toDTO(t, null))
-                .collect(java.util.stream.Collectors.toList());
-    }
-    private TransaccionDTO toDTO(Transaccion t, Publicacion p) {
+
+    private TransaccionDTO toDTO(Transaccion t) {
         TransaccionDTO dto = new TransaccionDTO();
         dto.setId(t.getId());
         dto.setPublicacionId(t.getPublicacionId());

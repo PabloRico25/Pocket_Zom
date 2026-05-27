@@ -1,7 +1,7 @@
 package com.example.partida.service;
 
-import com.example.partida.client.BilleteraClient;
-import com.example.partida.client.RangoClient;
+import com.example.partida.client.BilleteraCliente;
+import com.example.partida.client.RangoCliente;
 import com.example.partida.dto.FinalizarPartidaDTO;
 import com.example.partida.dto.PartidaDTO;
 import com.example.partida.model.Partida;
@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,9 +24,9 @@ public class PartidaService {
     @Autowired
     private PartidaRepository partidaRepository;
     @Autowired
-    private BilleteraClient billeteraClient;
+    private BilleteraCliente billeteraCliente;
     @Autowired
-    private RangoClient rangoClient;
+    private RangoCliente rangoCliente;
     public List<PartidaDTO> listarTodas() {
         List<Partida> partidas = partidaRepository.findAll();
         List<PartidaDTO> resultado = new ArrayList<>();
@@ -79,14 +79,15 @@ public class PartidaService {
         p = partidaRepository.save(p);
 
         try {
-            billeteraClient.registrarMovimiento(dto.getGanadorId(), "INGRESO", 100, "Premio por ganar partida " + id);
-        } catch (Exception e) {
+            // ✅ CORRECTO
+            billeteraCliente.registrarMovimiento(dto.getGanadorId(),
+                    Map.of("tipo", "INGRESO", "monto", 100, "concepto", "Premio por ganar partida " + id));} catch (Exception e) {
             log.error("Error al premiar al ganador en billetera: {}", e.getMessage());
         }
         try {
             Long perdedorId = p.getJugador1Id().equals(dto.getGanadorId()) ? p.getJugador2Id() : p.getJugador1Id();
-            rangoClient.actualizarRanking(dto.getGanadorId(), true, 10);
-            rangoClient.actualizarRanking(perdedorId, false, -5);
+            rangoCliente.actualizarRanking(dto.getGanadorId(), true, 10);
+            rangoCliente.actualizarRanking(perdedorId, false, -5);
         } catch (Exception e) {
             log.error("Error al actualizar ranking: {}", e.getMessage());
         }

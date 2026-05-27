@@ -3,50 +3,32 @@ package com.example.publicacion.service;
 import com.example.publicacion.dto.PublicacionDTO;
 import com.example.publicacion.model.Publicacion;
 import com.example.publicacion.repository.PublicacionRepository;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class PublicacionService {
-    @Autowired
-    private PublicacionRepository publicacionRepository;
+
+    private final PublicacionRepository publicacionRepository;
     public List<PublicacionDTO> listarActivas() {
-        List<Publicacion> publicaciones = publicacionRepository.findByEstado("ACTIVA");
-        List<PublicacionDTO> resultado = new ArrayList<>();
-        for (Publicacion pub : publicaciones) {
-            PublicacionDTO dto = toDTO(pub);
-            resultado.add(dto);
-        }
-        return resultado;
+        return publicacionRepository.findByEstado("ACTIVA").stream()
+                .map(this::toDTO).collect(Collectors.toList());
     }
-    public List<PublicacionDTO> listarPorVendedor(Long vendedorId) {
-        List<Publicacion> publicaciones = publicacionRepository.findByVendedorId(vendedorId);
-        List<PublicacionDTO> resultado = new ArrayList<>();
-        for (Publicacion pub : publicaciones) {
-            PublicacionDTO dto = toDTO(pub);
-            resultado.add(dto);
-        }
-        return resultado;
+    public List<PublicacionDTO> listarPorVendedor(Long idVendedor) {
+        return publicacionRepository.findByVendedorId(idVendedor).stream()
+                .map(this::toDTO).collect(Collectors.toList());
     }
-    public PublicacionDTO obtenerPorId(Long id) {
-        Optional<Publicacion> optional = publicacionRepository.findById(id);
-        if (optional.isPresent()) {
-            Publicacion publicacion = optional.get();
-            return toDTO(publicacion);
-        }
-        return null;
+    public PublicacionDTO buscarPorId(Long id) {
+        return publicacionRepository.findById(id).map(this::toDTO).orElse(null);
     }
-    public PublicacionDTO crearPublicacion(PublicacionDTO dto) {
+    public PublicacionDTO crear(PublicacionDTO dto) {
         Publicacion p = new Publicacion();
         p.setVendedorId(dto.getVendedorId());
         p.setCodigoCarta(dto.getCodigoCarta().trim().toUpperCase());
@@ -54,25 +36,28 @@ public class PublicacionService {
         p.setEstado("ACTIVA");
         p.setFechaPublicacion(LocalDateTime.now());
         p = publicacionRepository.save(p);
+        log.info("Publicación creada: {}", p.getId());
         return toDTO(p);
     }
-    public void eliminarPublicacion(Long id) {
-        Optional<Publicacion> optional = publicacionRepository.findById(id);
-        if (!optional.isPresent()) {
-            log.info("No se encontró la publicación con ID: " + id);
+    public void eliminar(Long id) {
+        Publicacion p = publicacionRepository.findById(id).orElse(null);
+        if (p == null) {
+            log.warn("Publicación no encontrada: {}", id);
             return;
         }
-        Publicacion publicacion = optional.get();
-        if ("VENDIDA".equals(publicacion.getEstado())) {
-            log.info("No se puede eliminar la publicación " + id + " porque ya está vendida");
+        if ("VENDIDA".equals(p.getEstado())) {
+            log.warn("No se puede eliminar publicación ya vendida: {}", id);
             return;
         }
-        publicacionRepository.delete(publicacion);
-        log.info("Publicación eliminada: " + id);
+        publicacionRepository.delete(p);
+        log.info("Publicación eliminada: {}", id);
     }
     public Publicacion marcarComoVendida(Long id) {
-        Publicacion p = publicacionRepository.findByIdAndEstado(id, "ACTIVA")
-                .orElseThrow(() -> new RuntimeException("Publicación no activa"));
+        Publicacion p = publicacionRepository.findByIdAndEstado(id, "ACTIVA").orElse(null);
+        if (p == null) {
+            log.warn("Publicación {} no encontrada o no está activa", id);
+            return null;
+        }
         p.setEstado("VENDIDA");
         return publicacionRepository.save(p);
     }
@@ -87,4 +72,3 @@ public class PublicacionService {
         return dto;
     }
 }
-

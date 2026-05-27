@@ -11,3 +11,4 @@ public class TransaccionDTO {
     private Long compradorId;
     private LocalDateTime fechaCompra;
 }
+

@@ -1,52 +1,62 @@
 package com.example.perfil.service;
 
 import com.example.perfil.model.JugadorFaccion;
+import com.example.perfil.repository.FaccionRepository;
 import com.example.perfil.repository.JugadorFaccionRepository;
+import com.example.perfil.repository.JugadorRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class JugadorFaccionService {
+
     private final JugadorFaccionRepository jugadorFaccionRepository;
-    private final JugadorService jugadorService;
-    private final FaccionService faccionService;
+    private final JugadorRepository jugadorRepository;
+    private final FaccionRepository faccionRepository;
 
-    @Transactional
-    public void unir(Long jugadorId, Long faccionId) {
-        if (!jugadorService.existeJugador(jugadorId)) {
-            throw new RuntimeException("El jugador " + jugadorId + " no existe");
+    public List<JugadorFaccion> listarPorJugador(Long idJugador) {
+        return jugadorFaccionRepository.findByIdJugador(idJugador);
+    }
+    public JugadorFaccion unir(Long idJugador, Long idFaccion) {
+        if (!jugadorRepository.existsById(idJugador)) {
+            log.warn("Jugador no encontrado: {}", idJugador);
+            return null;
         }
-        faccionService.obtenerPorId(faccionId);
-
-        if (jugadorFaccionRepository.findByJugadorIdAndFaccionId(jugadorId, faccionId).isPresent()) {
-            throw new RuntimeException("El jugador ya pertenece a esta facción");
+        if (!faccionRepository.existsById(idFaccion)) {
+            log.warn("Facción no encontrada: {}", idFaccion);
+            return null;
         }
-
+        List<JugadorFaccion> faccionesActuales = jugadorFaccionRepository.findByIdJugador(idJugador);
+        if (!faccionesActuales.isEmpty()) {
+            log.warn("El jugador {} ya pertenece a una facción", idJugador);
+            return null;
+        }
+        if (jugadorFaccionRepository.findByIdJugadorAndIdFaccion(idJugador, idFaccion).isPresent()) {
+            log.warn("El jugador {} ya está en la facción {}", idJugador, idFaccion);
+            return null;
+        }
         JugadorFaccion jf = new JugadorFaccion();
-        jf.setJugadorId(jugadorId);
-        jf.setFaccionId(faccionId);
-        jugadorFaccionRepository.save(jf);
-        log.info("Jugador {} unido a facción {}", jugadorId, faccionId);
+        jf.setIdJugador(idJugador);
+        jf.setIdFaccion(idFaccion);
+        JugadorFaccion guardado = jugadorFaccionRepository.save(jf);
+        log.info("Jugador {} unido a facción {}", idJugador, idFaccion);
+        return guardado;
     }
-
-    @Transactional
-    public void salir(Long jugadorId, Long faccionId) {
-        JugadorFaccion jf = jugadorFaccionRepository.findByJugadorIdAndFaccionId(jugadorId, faccionId)
-                .orElseThrow(() -> new RuntimeException("El jugador no pertenece a esa facción"));
+    public boolean salir(Long idJugador, Long idFaccion) {
+        JugadorFaccion jf = jugadorFaccionRepository
+                .findByIdJugadorAndIdFaccion(idJugador, idFaccion)
+                .orElse(null);
+        if (jf == null) {
+            log.warn("El jugador {} no pertenece a la facción {}", idJugador, idFaccion);
+            return false;
+        }
         jugadorFaccionRepository.delete(jf);
-        log.info("Jugador {} salió de facción {}", jugadorId, faccionId);
-    }
-
-    public List<Long> listarFaccionesDeJugador(Long jugadorId) {
-        return jugadorFaccionRepository.findByJugadorId(jugadorId).stream()
-                .map(JugadorFaccion::getFaccionId)
-                .collect(Collectors.toList());
+        log.info("Jugador {} salió de facción {}", idJugador, idFaccion);
+        return true;
     }
 }

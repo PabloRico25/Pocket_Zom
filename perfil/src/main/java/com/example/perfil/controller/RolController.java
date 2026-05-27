@@ -1,6 +1,6 @@
 package com.example.perfil.controller;
 
-import com.example.perfil.dto.RolDTO;
+import com.example.perfil.model.Rol;
 import com.example.perfil.service.RolService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,28 +14,33 @@ import java.util.List;
 @RequestMapping("/api/v1/roles")
 @RequiredArgsConstructor
 public class RolController {
+
     private final RolService rolService;
 
     @GetMapping
-    public ResponseEntity<List<RolDTO>> listar() {
-        return ResponseEntity.ok(rolService.listar());
+    public ResponseEntity<List<Rol>> listar() {
+        List<Rol> lista = rolService.listar();
+        if (lista.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RolDTO> obtener(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(rolService.obtenerPorId(id));
-        } catch (RuntimeException e) {
+    public ResponseEntity<Rol> buscarPorId(@PathVariable Long id) {
+        Rol rol = rolService.buscarPorId(id);
+        if (rol == null) {
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(rol);
     }
 
     @PostMapping
-    public ResponseEntity<RolDTO> crear(@Valid @RequestBody RolDTO dto) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(rolService.crear(dto));
-        } catch (RuntimeException e) {
+    public ResponseEntity<Rol> crear(@Valid @RequestBody Rol rol) {
+        Rol nuevo = rolService.crear(rol);
+        if (nuevo == null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 }

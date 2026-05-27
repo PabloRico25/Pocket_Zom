@@ -1,6 +1,7 @@
 package com.example.inventario.controller;
 
-import com.example.inventario.dto.CartaUsuarioDTO;
+import com.example.inventario.dto.AgregarCartaDTO;
+import com.example.inventario.model.CartaUsuario;
 import com.example.inventario.service.CartaUsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,49 +15,52 @@ import java.util.List;
 @RequestMapping("/api/v1/inventario/cartas")
 @RequiredArgsConstructor
 public class CartaUsuarioController {
+
     private final CartaUsuarioService cartaUsuarioService;
 
-    @PostMapping("/{jugadorId}")
-    public ResponseEntity<CartaUsuarioDTO> agregar(@PathVariable Long jugadorId,
-                                                   @Valid @RequestBody CartaUsuarioDTO dto) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(cartaUsuarioService.agregarCarta(jugadorId, dto));
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+    @GetMapping("/{idJugador}")
+    public ResponseEntity<List<CartaUsuario>> listar(@PathVariable Long idJugador) {
+        List<CartaUsuario> lista = cartaUsuarioService.listarCartas(idJugador);
+        if (lista == null) return ResponseEntity.notFound().build();
+        if (lista.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(lista);
     }
 
-    @DeleteMapping("/{jugadorId}/{codigoCarta}")
-    public ResponseEntity<Void> quitar(@PathVariable Long jugadorId,
-                                       @PathVariable String codigoCarta,
-                                       @RequestParam Integer cantidad) {
-        try {
-            cartaUsuarioService.quitarCarta(jugadorId, codigoCarta, cantidad);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/{jugadorId}")
-    public ResponseEntity<List<CartaUsuarioDTO>> listar(@PathVariable Long jugadorId) {
-        try {
-            return ResponseEntity.ok(cartaUsuarioService.listarCartas(jugadorId));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
+    // Consumido por mazo via Feign con @RequestParam — no cambia
     @GetMapping("/tiene")
-    public ResponseEntity<Boolean> tieneCarta(@RequestParam Long jugadorId,
+    public ResponseEntity<Boolean> tieneCarta(@RequestParam Long idJugador,
                                               @RequestParam String codigoCarta,
                                               @RequestParam(required = false) Integer cantidad) {
-        try {
-            boolean resultado = cartaUsuarioService.tieneCarta(jugadorId, codigoCarta, cantidad);
-            return ResponseEntity.ok(resultado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.ok(false);
-        }
+        return ResponseEntity.ok(cartaUsuarioService.tieneCarta(idJugador, codigoCarta, cantidad));
+    }
+
+    // Ahora recibe JSON
+    @PostMapping("/{idJugador}/agregar")
+    public ResponseEntity<CartaUsuario> agregar(@PathVariable Long idJugador,
+                                                @Valid @RequestBody AgregarCartaDTO dto) {
+        CartaUsuario resultado = cartaUsuarioService.agregar(idJugador, dto.getCodigoCarta(), dto.getCantidad());
+        if (resultado == null) return ResponseEntity.badRequest().build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
+    }
+
+    @DeleteMapping("/{idJugador}")
+    public ResponseEntity<Void> quitar(@PathVariable Long idJugador,
+                                       @RequestParam String codigoCarta,
+                                       @RequestParam Integer cantidad) {
+        boolean ok = cartaUsuarioService.quitar(idJugador, codigoCarta, cantidad);
+        if (!ok) return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
+    }
+
+    // Consumido por publicacion via Feign — mantiene @RequestParam
+    @PostMapping("/{idJugador}/transferir")
+    public ResponseEntity<Void> transferir(@PathVariable Long idJugador,
+                                           @RequestParam Long idJugadorOrigen,
+                                           @RequestParam Long idJugadorDestino,
+                                           @RequestParam String codigoCarta,
+                                           @RequestParam Integer cantidad) {
+        boolean ok = cartaUsuarioService.transferir(idJugadorOrigen, idJugadorDestino, codigoCarta, cantidad);
+        if (!ok) return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,7 +1,12 @@
 package com.example.billetera.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,43 +15,35 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "movimientos")
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class Movimiento {
+
     @Id
-    @NotBlank(message = "El ID de transacción es obligatorio")
-    private String idTransaccion;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_transaccion")
+    private Long idTransaccion;
 
     @NotNull(message = "El ID de la cartera es obligatorio")
-    private Long carteraId;
+    @Column(name = "id_cartera", nullable = false)
+    private Long idCartera;
+
+    // INGRESO suma al saldo, EGRESO resta
+    @NotBlank(message = "El tipo es obligatorio")
+    @Pattern(regexp = "INGRESO|EGRESO", message = "El tipo debe ser INGRESO o EGRESO")
+    @Column(name = "tipo", nullable = false, length = 10)
+    private String tipo;
 
     @NotNull(message = "El monto es obligatorio")
     @Min(value = 1, message = "El monto debe ser al menos 1")
+    @Column(name = "monto", nullable = false)
     private Integer monto;
 
     @NotBlank(message = "El concepto es obligatorio")
     @Size(max = 100, message = "El concepto no puede superar 100 caracteres")
+    @Column(name = "concepto", nullable = false, length = 100)
     private String concepto;
 
-    @NotNull(message = "La fecha es obligatoria")
-    @PastOrPresent(message = "La fecha no puede ser futura")
-    private LocalDateTime fecha;
-
-    @NotBlank(message = "El tipo es obligatorio")
-    @Pattern(regexp = "INGRESO|EGRESO", message = "El tipo debe ser INGRESO o EGRESO")
-    private String tipo;
-
-    @Column(name = "tipo_movimiento", nullable = false)
-    @NotBlank(message = "El tipo de movimiento es obligatorio")
-    @Size(max = 15)
-    private String tipoMovimiento;
-
-    @Column(nullable = false, length = 40)
-    @NotBlank(message = "La descripción es obligatoria")
-    @Size(max = 40)
-    private String descripcion;
-
-    @Column(name = "billeteras_id_billetera", nullable = false, length = 30)
-    @NotBlank(message = "El ID de la billetera es obligatorio")
-    @Size(max = 30)
-    private String billeterasIdBilletera;
+    @Column(name = "fecha")
+    private LocalDateTime fecha = LocalDateTime.now();
 }

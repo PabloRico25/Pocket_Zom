@@ -1,7 +1,10 @@
 package com.example.cartacatalogo.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,34 +12,35 @@ import lombok.NoArgsConstructor;
 @Table(name = "cartas")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Carta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "El código es obligatorio")
-    @Size(max = 20, message = "El código no puede superar 20 caracteres")
+    @Size(max = 20)
     @Column(unique = true, nullable = false, length = 20)
     private String codigo;
 
     @NotBlank(message = "El nombre es obligatorio")
-    @Size(max = 100, message = "El nombre no puede superar 100 caracteres")
+    @Size(max = 100)
     @Column(nullable = false, length = 100)
     private String nombre;
 
-    @Size(max = 50, message = "La raza no puede superar 50 caracteres")
+    @Size(max = 50)
     private String raza;
 
-    @Min(value = 0, message = "El ataque no puede ser negativo")
-    private Integer ataque;
+    @Min(0)
+    private Integer ataque = 0;
 
-    @Min(value = 0, message = "La defensa no puede ser negativa")
-    private Integer defensa;
+    @Min(0)
+    private Integer defensa = 0;
 
-    @Min(value = 0, message = "El coste no puede ser negativo")
-    private Integer coste;
+    @Min(0)
+    private Integer coste = 0;
 
-    @Size(max = 500, message = "La habilidad no puede superar 500 caracteres")
+    @Size(max = 500)
     private String habilidad;
 
     private Boolean activa = true;
