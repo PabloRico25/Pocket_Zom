@@ -19,7 +19,7 @@ public class Inventario {
     private Long id;
 
     @NotNull(message = "El ID del jugador es obligatorio")
-    private Long jugadorId;   // referencia lógica a Jugador (MS perfil)
+    private Long jugadorId;
 
     @PastOrPresent(message = "La fecha de creación no puede ser futura")
     private LocalDateTime fechaCreacion = LocalDateTime.now();

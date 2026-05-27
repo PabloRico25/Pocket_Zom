@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -18,38 +17,34 @@ public class MazoController {
 
     @GetMapping("/jugador/{jugadorId}")
     public ResponseEntity<List<MazoDTO>> listarPorJugador(@PathVariable Long jugadorId) {
-        List<MazoDTO> mazos = mazoService.listarPorJugador(jugadorId);
-        if (mazos.isEmpty()) return ResponseEntity.noContent().build();
-        return ResponseEntity.ok(mazos);
+        return ResponseEntity.ok(mazoService.listarPorJugador(jugadorId));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<MazoDTO> obtener(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(mazoService.obtenerPorId(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        MazoDTO dto = mazoService.obtenerPorId(id);
+        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/{jugadorId}")
-    public ResponseEntity<MazoDTO> crear(@PathVariable Long jugadorId,
-                                         @Valid @RequestBody MazoDTO dto) {
+    public ResponseEntity<MazoDTO> crear(@PathVariable Long jugadorId, @Valid @RequestBody MazoDTO dto) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(mazoService.crearMazo(jugadorId, dto));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MazoDTO> actualizar(@PathVariable Long id,
-                                              @Valid @RequestBody MazoDTO dto) {
+    public ResponseEntity<MazoDTO> actualizar(@PathVariable Long id, @Valid @RequestBody MazoDTO dto) {
         try {
             return ResponseEntity.ok(mazoService.actualizarMazo(id, dto));
         } catch (RuntimeException e) {
-            if (e.getMessage().contains("no encontrado")) return ResponseEntity.notFound().build();
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            if (e.getMessage().contains("no encontrado")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.badRequest().build();
         }
     }
 

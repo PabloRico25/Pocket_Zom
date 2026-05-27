@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -18,19 +17,15 @@ public class MazoCartaController {
 
     @GetMapping
     public ResponseEntity<List<MazoCartaDTO>> listar(@PathVariable Long mazoId) {
-        List<MazoCartaDTO> cartas = mazoCartaService.listarCartas(mazoId);
-        if (cartas.isEmpty()) return ResponseEntity.noContent().build();
-        return ResponseEntity.ok(cartas);
+        return ResponseEntity.ok(mazoCartaService.listarCartas(mazoId));
     }
 
-
-
     @PostMapping
-    public ResponseEntity<MazoCartaDTO> agregar(@PathVariable Long mazoId,
-                                                @Valid @RequestBody MazoCartaDTO dto) {
+    public ResponseEntity<MazoCartaDTO> agregar(@PathVariable Long mazoId, @Valid @RequestBody MazoCartaDTO dto) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(mazoCartaService.agregarCarta(mazoId, dto));
         } catch (RuntimeException e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
@@ -52,6 +47,4 @@ public class MazoCartaController {
         mazoCartaService.limpiarMazo(mazoId);
         return ResponseEntity.noContent().build();
     }
-
-
 }

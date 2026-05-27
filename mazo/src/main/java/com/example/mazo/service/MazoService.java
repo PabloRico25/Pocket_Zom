@@ -20,88 +20,81 @@ public class MazoService {
     private final PerfilClient perfilClient;
 
     public List<MazoDTO> listarPorJugador(Long jugadorId) {
-        return mazoRepository.findByJugadorId(jugadorId)
-                .stream()
+        return mazoRepository.findByJugadorId(jugadorId).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     public MazoDTO obtenerPorId(Long id) {
-        Mazo mazo = mazoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Mazo no encontrado con id " + id));
-        return toDTO(mazo);
+        return mazoRepository.findById(id).map(this::toDTO).orElse(null);
     }
 
     @Transactional
     public MazoDTO crearMazo(Long jugadorId, MazoDTO dto) {
-        // Validar que el jugador existe
+        // Validar jugador con Feign
         if (!perfilClient.existeJugador(jugadorId)) {
-            throw new RuntimeException("El jugador " + jugadorId + " no existe");
+            throw new RuntimeException("Jugador no existe");
         }
-        // Si el nuevo mazo es activo, desactivar cualquier otro mazo activo del mismo jugador
-        if (dto.getEsActivo() != null && dto.getEsActivo()) {
+        // Si el nuevo mazo es activo, desactivar otros activos del mismo jugador
+        if (Boolean.TRUE.equals(dto.getEsActivo())) {
             mazoRepository.findByJugadorIdAndEsActivoTrue(jugadorId)
                     .ifPresent(activo -> {
                         activo.setEsActivo(false);
                         mazoRepository.save(activo);
-                        log.info("Mazo activo {} desactivado", activo.getId());
+                        log.info("Mazo {} desactivado", activo.getId());
                     });
         }
-        Mazo mazo = new Mazo();
-        mazo.setJugadorId(jugadorId);
-        mazo.setNombre(dto.getNombre());
-        mazo.setEsActivo(dto.getEsActivo() != null ? dto.getEsActivo() : false);
-        mazo = mazoRepository.save(mazo);
-        log.info("Mazo creado con id {} para jugador {}", mazo.getId(), jugadorId);
-        return toDTO(mazo);
+        Mazo m = new Mazo();
+        m.setJugadorId(jugadorId);
+        m.setNombre(dto.getNombre());
+        m.setEsActivo(dto.getEsActivo() != null ? dto.getEsActivo() : false);
+        m.setFechaCreacion(LocalDateTime.now());
+        m = mazoRepository.save(m);
+        log.info("Mazo creado: {} para jugador {}", m.getId(), jugadorId);
+        return toDTO(m);
     }
 
     @Transactional
     public MazoDTO actualizarMazo(Long id, MazoDTO dto) {
-        Mazo mazo = mazoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Mazo no encontrado con id " + id));
-        // Si se marca como activo y no lo era, desactivar otros mazos del mismo jugador
-        if (dto.getEsActivo() != null && dto.getEsActivo() && !Boolean.TRUE.equals(mazo.getEsActivo())) {
-            mazoRepository.findByJugadorIdAndEsActivoTrue(mazo.getJugadorId())
+        Mazo m = mazoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Mazo no encontrado"));
+        // Si se activa y no lo estaba, desactivar otros del jugador
+        if (Boolean.TRUE.equals(dto.getEsActivo()) && !Boolean.TRUE.equals(m.getEsActivo())) {
+            mazoRepository.findByJugadorIdAndEsActivoTrue(m.getJugadorId())
                     .ifPresent(activo -> {
                         activo.setEsActivo(false);
                         mazoRepository.save(activo);
-                        log.info("Mazo activo {} desactivado", activo.getId());
                     });
         }
-        mazo.setNombre(dto.getNombre());
-        if (dto.getEsActivo() != null) {
-            mazo.setEsActivo(dto.getEsActivo());
-        }
-        mazo = mazoRepository.save(mazo);
-        log.info("Mazo {} actualizado", mazo.getId());
-        return toDTO(mazo);
+        if (dto.getNombre() != null) m.setNombre(dto.getNombre());
+        if (dto.getEsActivo() != null) m.setEsActivo(dto.getEsActivo());
+        m = mazoRepository.save(m);
+        log.info("Mazo {} actualizado", m.getId());
+        return toDTO(m);
     }
 
     @Transactional
     public void eliminarMazo(Long id) {
         if (!mazoRepository.existsById(id)) {
-            throw new RuntimeException("Mazo no encontrado con id " + id);
+            throw new RuntimeException("Mazo no encontrado");
         }
         mazoRepository.deleteById(id);
         log.info("Mazo {} eliminado", id);
     }
 
-    // Método interno para obtener entidad (usado por MazoCartaService)
+    // Para uso interno de MazoCartaService
     public Mazo obtenerEntidad(Long id) {
         return mazoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Mazo no encontrado con id " + id));
+                .orElseThrow(() -> new RuntimeException("Mazo no encontrado"));
     }
 
-    private MazoDTO toDTO(Mazo mazo) {
+    private MazoDTO toDTO(Mazo m) {
         MazoDTO dto = new MazoDTO();
-        dto.setId(mazo.getId());
-        dto.setJugadorId(mazo.getJugadorId());
-        dto.setNombre(mazo.getNombre());
-        dto.setEsActivo(mazo.getEsActivo());
-        dto.setFechaCreacion(mazo.getFechaCreacion());
+        dto.setId(m.getId());
+        dto.setJugadorId(m.getJugadorId());
+        dto.setNombre(m.getNombre());
+        dto.setEsActivo(m.getEsActivo());
+        dto.setFechaCreacion(m.getFechaCreacion());
         return dto;
     }
-
-
 }

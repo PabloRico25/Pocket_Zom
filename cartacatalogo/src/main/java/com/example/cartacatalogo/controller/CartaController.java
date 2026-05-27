@@ -73,4 +73,9 @@ public class CartaController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/codigo/{codigo}/existe")
+    public ResponseEntity<Boolean> existePorCodigo(@PathVariable String codigo) {
+        return ResponseEntity.ok(cartaService.existePorCodigo(codigo));
+    }
 }

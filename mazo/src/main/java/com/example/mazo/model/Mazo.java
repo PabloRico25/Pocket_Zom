@@ -17,7 +17,7 @@ public class Mazo {
     private Long id;
 
     @NotNull(message = "El ID del jugador es obligatorio")
-    private Long jugadorId;   // referencia lógica a Jugador (MS perfil)
+    private Long jugadorId;
 
     @NotBlank(message = "El nombre del mazo es obligatorio")
     @Size(max = 50, message = "El nombre no puede superar 50 caracteres")
