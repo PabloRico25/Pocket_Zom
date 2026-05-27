@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -20,15 +22,32 @@ public class PublicacionService {
     private PublicacionRepository publicacionRepository;
 
     public List<PublicacionDTO> listarActivas() {
-        return publicacionRepository.findByEstado("ACTIVA").stream().map(this::toDTO).collect(Collectors.toList());
+        List<Publicacion> publicaciones = publicacionRepository.findByEstado("ACTIVA");
+        List<PublicacionDTO> resultado = new ArrayList<>();
+        for (Publicacion pub : publicaciones) {
+            PublicacionDTO dto = toDTO(pub);
+            resultado.add(dto);
+        }
+        return resultado;
     }
 
     public List<PublicacionDTO> listarPorVendedor(Long vendedorId) {
-        return publicacionRepository.findByVendedorId(vendedorId).stream().map(this::toDTO).collect(Collectors.toList());
+        List<Publicacion> publicaciones = publicacionRepository.findByVendedorId(vendedorId);
+        List<PublicacionDTO> resultado = new ArrayList<>();
+        for (Publicacion pub : publicaciones) {
+            PublicacionDTO dto = toDTO(pub);
+            resultado.add(dto);
+        }
+        return resultado;
     }
 
     public PublicacionDTO obtenerPorId(Long id) {
-        return publicacionRepository.findById(id).map(this::toDTO).orElse(null);
+        Optional<Publicacion> optional = publicacionRepository.findById(id);
+        if (optional.isPresent()) {
+            Publicacion publicacion = optional.get();
+            return toDTO(publicacion);
+        }
+        return null;
     }
 
     public PublicacionDTO crearPublicacion(PublicacionDTO dto) {
@@ -43,11 +62,18 @@ public class PublicacionService {
     }
 
     public void eliminarPublicacion(Long id) {
-        Publicacion p = publicacionRepository.findById(id).orElseThrow(() -> new RuntimeException("Publicación no encontrada"));
-        if ("VENDIDA".equals(p.getEstado())) {
-            throw new RuntimeException("No se puede eliminar una publicación ya vendida");
+        Optional<Publicacion> optional = publicacionRepository.findById(id);
+        if (!optional.isPresent()) {
+            log.info("No se encontró la publicación con ID: " + id);
+            return;
         }
-        publicacionRepository.delete(p);
+        Publicacion publicacion = optional.get();
+        if ("VENDIDA".equals(publicacion.getEstado())) {
+            log.info("No se puede eliminar la publicación " + id + " porque ya está vendida");
+            return;
+        }
+        publicacionRepository.delete(publicacion);
+        log.info("Publicación eliminada: " + id);
     }
 
     public Publicacion marcarComoVendida(Long id) {

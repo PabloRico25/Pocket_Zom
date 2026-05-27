@@ -18,7 +18,11 @@ public class PublicacionController {
 
     @GetMapping("/activas")
     public ResponseEntity<List<PublicacionDTO>> listarActivas() {
-        return ResponseEntity.ok(publicacionService.listarActivas());
+        List<PublicacionDTO> activas = publicacionService.listarActivas();
+        if (activas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(activas);
     }
 
     @GetMapping("/vendedor/{vendedorId}")
@@ -28,8 +32,11 @@ public class PublicacionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PublicacionDTO> obtener(@PathVariable Long id) {
-        PublicacionDTO dto = publicacionService.obtenerPorId(id);
-        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+        PublicacionDTO publicacion = publicacionService.obtenerPorId(id);
+        if (publicacion == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(publicacion);
     }
 
     @PostMapping
@@ -43,11 +50,7 @@ public class PublicacionController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        try {
-            publicacionService.eliminarPublicacion(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        publicacionService.eliminarPublicacion(id);
+        return ResponseEntity.noContent().build();
     }
 }
