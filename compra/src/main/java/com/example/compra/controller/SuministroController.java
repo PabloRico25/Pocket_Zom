@@ -18,16 +18,20 @@ public class SuministroController {
 
     @GetMapping
     public ResponseEntity<List<SuministroDTO>> listar() {
-        return ResponseEntity.ok(suministroService.listar());
+        List<SuministroDTO> lista = suministroService.listar();
+        if (lista.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<SuministroDTO> obtener(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(suministroService.obtener(id));
-        } catch (RuntimeException e) {
+        SuministroDTO suministro = suministroService.obtener(id);
+        if (suministro == null) {
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(suministro);
     }
 
     @PostMapping
@@ -42,20 +46,16 @@ public class SuministroController {
     @PutMapping("/{id}")
     public ResponseEntity<SuministroDTO> actualizar(@PathVariable Long id,
                                                     @Valid @RequestBody SuministroDTO dto) {
-        try {
-            return ResponseEntity.ok(suministroService.actualizar(id, dto));
-        } catch (RuntimeException e) {
+        SuministroDTO actualizado = suministroService.actualizar(id, dto);
+        if (actualizado == null) {
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        try {
-            suministroService.eliminar(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        suministroService.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }

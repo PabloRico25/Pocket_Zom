@@ -8,7 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -19,12 +21,23 @@ public class SuministroService {
     private SuministroRepository suministroRepository;
 
     public List<SuministroDTO> listar() {
-        return suministroRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+        List<Suministro> suministros = suministroRepository.findAll();
+        List<SuministroDTO> resultado = new ArrayList<>();
+        for (Suministro suministro : suministros) {
+            SuministroDTO dto = toDTO(suministro);
+            resultado.add(dto);
+        }
+        return resultado;
     }
 
     public SuministroDTO obtener(Long id) {
-        return suministroRepository.findById(id).map(this::toDTO)
-                .orElseThrow(() -> new RuntimeException("Suministro no encontrado"));
+        Optional<Suministro> optional = suministroRepository.findById(id);
+        if (optional.isPresent()) {
+            Suministro suministro = optional.get();
+            return toDTO(suministro);
+        } else {
+            return null;
+        }
     }
 
     public SuministroDTO crear(SuministroDTO dto) {
@@ -38,23 +51,38 @@ public class SuministroService {
     }
 
     public SuministroDTO actualizar(Long id, SuministroDTO dto) {
-        Suministro s = suministroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Suministro no encontrado"));
-        s.setNombre(dto.getNombre());
-        s.setCosto(dto.getCosto());
-        s.setCantidadCartas(dto.getCantidadCartas());
-        s.setProbabilidades(dto.getProbabilidades());
-        s = suministroRepository.save(s);
-        return toDTO(s);
+        Optional<Suministro> optional = suministroRepository.findById(id);
+        if (!optional.isPresent()) {
+            log.info("No se encontró el suministro con ID: " + id);
+            return null;
+        }
+        Suministro suministro = optional.get();
+        suministro.setNombre(dto.getNombre());
+        suministro.setCosto(dto.getCosto());
+        suministro.setCantidadCartas(dto.getCantidadCartas());
+        suministro.setProbabilidades(dto.getProbabilidades());
+        Suministro actualizado = suministroRepository.save(suministro);
+        log.info("Suministro actualizado: " + id);
+        return toDTO(actualizado);
     }
 
     public void eliminar(Long id) {
-        if (!suministroRepository.existsById(id)) throw new RuntimeException("Suministro no encontrado");
+        boolean existe = suministroRepository.existsById(id);
+        if (!existe) {
+            log.info("No se encontró el suministro con ID: " + id);
+            return;
+        }
         suministroRepository.deleteById(id);
+        log.info("Suministro eliminado: " + id);
     }
 
     public Suministro obtenerEntidad(Long id) {
-        return suministroRepository.findById(id).orElseThrow(() -> new RuntimeException("Suministro no encontrado"));
+        Optional<Suministro> optional = suministroRepository.findById(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        log.info("No se encontró el suministro con ID: " + id);
+        return null;
     }
 
     private SuministroDTO toDTO(Suministro s) {

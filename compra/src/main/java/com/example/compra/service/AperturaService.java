@@ -38,46 +38,59 @@ public class AperturaService {
 
     public AperturaDTO abrirSuministro(Long jugadorId, AbrirSobreDTO dto) {
         Suministro suministro = suministroService.obtenerEntidad(dto.getSuministroId());
-
+        if (suministro == null) {
+            log.info("No se encontró el suministro con ID: " + dto.getSuministroId());
+            return null;
+        }
+        boolean pagoExitoso = true;
         try {
             billeteraClient.registrarMovimiento(jugadorId, "EGRESO", suministro.getCosto(),
                     "Compra de " + suministro.getNombre());
+            log.info("Se descontó " + suministro.getCosto() + " monedas al jugador " + jugadorId);
         } catch (Exception e) {
-            throw new RuntimeException("No se pudo descontar el costo. Saldo insuficiente?");
+            log.info("Error al descontar el costo: " + e.getMessage());
+            pagoExitoso = false;
         }
-
+        if (!pagoExitoso) {
+            log.info("No se pudo descontar el costo. Saldo insuficiente?");
+            return null;
+        }
         List<String> cartasObtenidas = new ArrayList<>();
         for (int i = 0; i < suministro.getCantidadCartas(); i++) {
             String carta = generarCartaAleatoria();
             cartasObtenidas.add(carta);
         }
-
         Apertura apertura = new Apertura();
         apertura.setJugadorId(jugadorId);
         apertura.setSuministroId(suministro.getId());
         apertura.setCartasObtenidas(convertirListaAJson(cartasObtenidas));
-        apertura = aperturaRepository.save(apertura);
-
+        Apertura guardada = aperturaRepository.save(apertura);
         for (String carta : cartasObtenidas) {
             try {
                 inventarioClient.agregarCarta(jugadorId, carta, 1);
+                log.info("Carta " + carta + " agregada al inventario del jugador " + jugadorId);
             } catch (Exception e) {
-                log.error("Error al añadir carta {} al inventario: {}", carta, e.getMessage());
+                log.info("Error al añadir carta " + carta + ": " + e.getMessage());
             }
         }
-
-        log.info("Apertura {} realizada: jugador={}, suministro={}, cartas={}",
-                apertura.getId(), jugadorId, suministro.getNombre(), cartasObtenidas);
-        return toDTO(apertura, suministro);
+        log.info("Apertura " + guardada.getId() + " realizada: jugador=" + jugadorId +
+                ", suministro=" + suministro.getNombre() + ", cartas=" + cartasObtenidas);
+        return toDTO(guardada, suministro);
     }
 
     public List<AperturaDTO> listarAperturasPorJugador(Long jugadorId) {
-        return aperturaRepository.findByJugadorId(jugadorId).stream()
-                .map(a -> {
-                    Suministro s = suministroService.obtenerEntidad(a.getSuministroId());
-                    return toDTO(a, s);
-                })
-                .collect(Collectors.toList());
+        List<Apertura> aperturas = aperturaRepository.findByJugadorId(jugadorId);
+        List<AperturaDTO> resultado = new ArrayList<>();
+        for (Apertura apertura : aperturas) {
+            Suministro suministro = suministroService.obtenerEntidad(apertura.getSuministroId());
+            if (suministro == null) {
+                log.info("No se encontró el suministro con ID: " + apertura.getSuministroId());
+                continue;
+            }
+            AperturaDTO dto = toDTO(apertura, suministro);
+            resultado.add(dto);
+        }
+        return resultado;
     }
 
     private String generarCartaAleatoria() {
@@ -86,10 +99,15 @@ public class AperturaService {
     }
 
     private String convertirListaAJson(List<String> lista) {
+        if (lista == null) {
+            log.info("La lista es null, devolviendo JSON vacío");
+            return "[]";
+        }
         try {
-            return objectMapper.writeValueAsString(lista);
-        } catch (JsonProcessingException e) {
-            log.error("Error convirtiendo a JSON", e);
+            String json = objectMapper.writeValueAsString(lista);
+            return json;
+        } catch (Exception e) {
+            log.info("Error al convertir la lista a JSON: " + e.getMessage());
             return "[]";
         }
     }
