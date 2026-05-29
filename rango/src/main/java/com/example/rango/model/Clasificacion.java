@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class Clasificacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id;
     private Long jugadorId;
     private Integer puntosElo = 1000;

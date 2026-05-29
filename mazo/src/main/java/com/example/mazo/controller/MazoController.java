@@ -1,5 +1,6 @@
 package com.example.mazo.controller;
 
+import com.example.mazo.dto.MazoDTO;
 import com.example.mazo.model.Mazo;
 import com.example.mazo.service.MazoService;
 import jakarta.validation.Valid;
@@ -16,30 +17,44 @@ import java.util.List;
 public class MazoController {
 
     private final MazoService mazoService;
+
     @GetMapping("/jugador/{idJugador}")
     public ResponseEntity<List<Mazo>> listarPorJugador(@PathVariable Long idJugador) {
         List<Mazo> lista = mazoService.listarPorJugador(idJugador);
         if (lista.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(lista);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<Mazo> buscar(@PathVariable Long id) {
         Mazo mazo = mazoService.buscarPorId(id);
         if (mazo == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(mazo);
     }
+
     @PostMapping("/{idJugador}")
-    public ResponseEntity<Mazo> crear(@PathVariable Long idJugador, @Valid @RequestBody Mazo mazo) {
+    public ResponseEntity<Mazo> crear(@PathVariable Long idJugador,@Valid @RequestBody MazoDTO dto) {
+        Mazo mazo = new Mazo();
+        mazo.setIdJugador(idJugador);
+        mazo.setNombre(dto.getNombre());
+        mazo.setEsActivo(dto.getEsActivo() != null ? dto.getEsActivo() : false);
+
         Mazo nuevo = mazoService.crear(idJugador, mazo);
         if (nuevo == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Mazo> actualizar(@PathVariable Long id, @Valid @RequestBody Mazo mazo) {
+    public ResponseEntity<Mazo> actualizar(@PathVariable Long id,@Valid @RequestBody MazoDTO dto) {
+        Mazo mazo = new Mazo();
+        mazo.setNombre(dto.getNombre());
+        mazo.setEsActivo(dto.getEsActivo());
+
         Mazo actualizado = mazoService.actualizar(id, mazo);
         if (actualizado == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(actualizado);
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         boolean ok = mazoService.eliminar(id);
@@ -47,3 +62,4 @@ public class MazoController {
         return ResponseEntity.noContent().build();
     }
 }
+

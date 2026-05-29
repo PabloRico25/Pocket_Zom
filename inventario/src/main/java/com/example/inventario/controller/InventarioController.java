@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InventarioController {
     private final InventarioService inventarioService;
+
     @GetMapping("/{idJugador}")
     public ResponseEntity<Inventario> buscar(@PathVariable Long idJugador) {
         Inventario inv = inventarioService.buscarPorJugador(idJugador);
         if (inv == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(inv);
     }
+
     @PostMapping("/{idJugador}")
     public ResponseEntity<Inventario> crear(@PathVariable Long idJugador) {
         Inventario nuevo = inventarioService.crear(idJugador);

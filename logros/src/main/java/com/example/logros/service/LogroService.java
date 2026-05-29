@@ -67,6 +67,7 @@ public class LogroService {
         int recompensaExp = (dto.getRecompensaExp() != null) ? dto.getRecompensaExp() : 0;
         nuevo.setRecompensaExp(recompensaExp);
         Logro guardado = logroRepository.save(nuevo);
+
         log.info("Logro creado con ID: " + guardado.getIdLogro());
         return toDTO(guardado);
     }
@@ -74,6 +75,7 @@ public class LogroService {
     public LogroDTO actualizar(String id, LogroDTO dto) {
         Optional<Logro> optional = logroRepository.findById(id);
         if (!optional.isPresent()) {
+
             log.info("No se encontró el logro con ID: " + id);
             return null;
         }
@@ -98,6 +100,7 @@ public class LogroService {
             return;
         }
         logroRepository.deleteById(id);
+
         log.info("Logro eliminado: " + id);
     }
 
@@ -106,6 +109,7 @@ public class LogroService {
         if (optional.isPresent()) {
             return optional.get();
         }
+
         log.info("No se encontró el logro con ID: " + id);
         return null;
     }

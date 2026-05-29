@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Logro {
     @Id
+
     @Column(length = 30)
     private String idLogro;
     private String nombre;

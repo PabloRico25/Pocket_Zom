@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface BilleteraCliente {
 
     @PostMapping("/api/v1/movimientos/{idJugador}")
-    void registrarMovimiento(@PathVariable("idJugador") Long idJugador,
-                             @RequestBody MovimientoDTO dto);
+    void registrarMovimiento(@PathVariable("idJugador") Long idJugador,@RequestBody MovimientoDTO dto);
 }
 

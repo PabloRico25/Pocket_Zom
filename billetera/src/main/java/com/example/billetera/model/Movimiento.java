@@ -28,7 +28,6 @@ public class Movimiento {
     @Column(name = "id_cartera", nullable = false)
     private Long idCartera;
 
-    // INGRESO suma al saldo, EGRESO resta
     @NotBlank(message = "El tipo es obligatorio")
     @Pattern(regexp = "INGRESO|EGRESO", message = "El tipo debe ser INGRESO o EGRESO")
     @Column(name = "tipo", nullable = false, length = 10)

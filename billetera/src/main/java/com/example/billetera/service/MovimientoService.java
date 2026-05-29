@@ -30,7 +30,6 @@ public class MovimientoService {
     }
 
     public Movimiento registrar(Long idJugador, String tipo, Integer monto, String concepto) {
-        // Valida que el jugador exista en el MS perfil
         if (!Boolean.TRUE.equals(perfilClient.existeJugador(idJugador))) {
             log.warn("Jugador {} no existe en perfil", idJugador);
             return null;
@@ -40,7 +39,6 @@ public class MovimientoService {
             log.warn("No existe cartera para el jugador {}", idJugador);
             return null;
         }
-        // Regla de negocio: no puede quedar con saldo negativo
         int cambio = "INGRESO".equalsIgnoreCase(tipo) ? monto : -monto;
         int nuevoSaldo = cartera.getSaldo() + cambio;
         if (nuevoSaldo < 0) {

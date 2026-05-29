@@ -16,14 +16,18 @@ import java.time.LocalDateTime;
 public class Transaccion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Column(name = "id_transaccion")
     private Long id;
     @NotNull(message = "La publicación es obligatoria")
+
     @Column(name = "publicacion_id", nullable = false)
     private Long publicacionId;
     @NotNull(message = "El comprador es obligatorio")
+
     @Column(name = "comprador_id", nullable = false)
     private Long compradorId;
+
     @Column(name = "fecha_compra")
     private LocalDateTime fechaCompra = LocalDateTime.now();
 }

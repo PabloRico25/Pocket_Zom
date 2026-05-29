@@ -24,12 +24,12 @@ public class FaccionService {
         return faccionRepository.findById(id).orElse(null);
     }
     public Faccion crear(Faccion faccion) {
-        // Valida que el nombre no esté en uso
+
         if (faccionRepository.findByNombre(faccion.getNombre()).isPresent()) {
             log.warn("Ya existe una facción con ese nombre: {}", faccion.getNombre());
             return null;
         }
-        // Valida que el líder exista
+
         if (!jugadorRepository.existsById(faccion.getIdLider())) {
             log.warn("El líder con id {} no existe", faccion.getIdLider());
             return null;

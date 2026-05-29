@@ -41,7 +41,6 @@ public class TransaccionService {
         t.setFechaCompra(LocalDateTime.now());
         t = transaccionRepository.save(t);
 
-        // Transferir carta del inventario del vendedor al inventario del comprador
         try {
             inventarioCliente.transferirCarta(
                     new TransferirCartaDTO(
@@ -56,7 +55,6 @@ public class TransaccionService {
             return null;
         }
 
-        // Descontar monedas al comprador y acreditar al vendedor
         try {
             billeteraCliente.registrarMovimiento(
                     compradorId,

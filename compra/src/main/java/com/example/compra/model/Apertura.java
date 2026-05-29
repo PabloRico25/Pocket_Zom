@@ -16,16 +16,21 @@ import java.time.LocalDateTime;
 public class Apertura {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Column(name = "id_apertura")
     private Long id;
     @NotNull(message = "El jugador es obligatorio")
+
     @Column(name = "jugador_id", nullable = false)
     private Long jugadorId;
     @NotNull(message = "El suministro es obligatorio")
+
     @Column(name = "suministro_id", nullable = false)
     private Long suministroId;
+
     @Column(name = "fecha")
     private LocalDateTime fecha = LocalDateTime.now();
+
     @Column(name = "cartas_obtenidas", columnDefinition = "TEXT")
     private String cartasObtenidas;
 }

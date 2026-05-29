@@ -7,8 +7,5 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "billetera")
 public interface BilleteraClient {
     @PostMapping("/api/v1/movimientos/{jugadorId}")
-    void registrarMovimiento(@RequestParam Long jugadorId,
-                             @RequestParam String tipo,
-                             @RequestParam Integer monto,
-                             @RequestParam String concepto);
+    void registrarMovimiento(@RequestParam Long jugadorId,@RequestParam String tipo,@RequestParam Integer monto,@RequestParam String concepto);
 }

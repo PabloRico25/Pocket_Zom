@@ -8,9 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableDiscoveryClient
 @SpringBootApplication
 @EnableFeignClients
-public class PartidaApplication {
-
-    public static void main(String[] args) {
+public class PartidaApplication {public static void main(String[] args) {
         SpringApplication.run(PartidaApplication.class, args);
     }
 

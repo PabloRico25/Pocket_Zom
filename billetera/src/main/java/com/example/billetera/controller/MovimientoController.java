@@ -26,7 +26,6 @@ public class MovimientoController {
         return ResponseEntity.ok(lista);
     }
 
-    // Consumido por Postman y por otros MS via Feign
     @PostMapping("/{idJugador}")
     public ResponseEntity<Movimiento> registrar(@PathVariable Long idJugador,
                                                 @Valid @RequestBody MovimientoDTO dto) {

@@ -25,7 +25,7 @@ public class CarteraService {
     }
 
     public Cartera crear(Long idJugador) {
-        // Un jugador solo puede tener una cartera
+
         if (carteraRepository.findByIdJugador(idJugador).isPresent()) {
             log.warn("El jugador {} ya tiene una cartera", idJugador);
             return null;

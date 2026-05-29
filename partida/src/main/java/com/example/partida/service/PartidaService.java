@@ -26,6 +26,7 @@ public class PartidaService {
     @Autowired
     private BilleteraCliente billeteraCliente;
     @Autowired
+
     private RangoCliente rangoCliente;
     public List<PartidaDTO> listarTodas() {
         List<Partida> partidas = partidaRepository.findAll();
@@ -36,6 +37,7 @@ public class PartidaService {
         }
         return resultado;
     }
+
     public List<PartidaDTO> listarPorJugador(Long jugadorId) {
         List<Partida> partidas = partidaRepository.findByJugador1IdOrJugador2Id(jugadorId, jugadorId);
         List<PartidaDTO> resultado = new ArrayList<>();
@@ -45,6 +47,7 @@ public class PartidaService {
         }
         return resultado;
     }
+
     public PartidaDTO obtenerPorId(Long id) {
         Optional<Partida> optional = partidaRepository.findById(id);
         if (optional.isPresent()) {
@@ -54,6 +57,7 @@ public class PartidaService {
             return null;
         }
     }
+
     @Transactional
     public PartidaDTO crearPartida(PartidaDTO dto) {
         Partida p = new Partida();
@@ -67,6 +71,7 @@ public class PartidaService {
         log.info("Partida creada: {} entre {} y {}", p.getId(), p.getJugador1Id(), p.getJugador2Id());
         return toDTO(p);
     }
+
     @Transactional
     public PartidaDTO finalizarPartida(Long id, FinalizarPartidaDTO dto) {
         Partida p = partidaRepository.findById(id).orElseThrow(() -> new RuntimeException("Partida no encontrada"));
@@ -79,9 +84,8 @@ public class PartidaService {
         p = partidaRepository.save(p);
 
         try {
-            // ✅ CORRECTO
-            billeteraCliente.registrarMovimiento(dto.getGanadorId(),
-                    Map.of("tipo", "INGRESO", "monto", 100, "concepto", "Premio por ganar partida " + id));} catch (Exception e) {
+            billeteraCliente.registrarMovimiento(dto.getGanadorId(),Map.of("tipo", "INGRESO", "monto", 100, "concepto", "Premio por ganar partida " + id));} catch (Exception e) {
+
             log.error("Error al premiar al ganador en billetera: {}", e.getMessage());
         }
         try {
@@ -95,10 +99,12 @@ public class PartidaService {
         log.info("Partida {} finalizada. Ganador: {}", id, dto.getGanadorId());
         return toDTO(p);
     }
+
     public void eliminarPartida(Long id) {
         if (!partidaRepository.existsById(id)) throw new RuntimeException("Partida no encontrada");
         partidaRepository.deleteById(id);
     }
+
     private PartidaDTO toDTO(Partida p) {
         PartidaDTO dto = new PartidaDTO();
         dto.setId(p.getId());

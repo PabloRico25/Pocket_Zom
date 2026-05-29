@@ -36,6 +36,7 @@ public class MazoCartaService {
         MazoCarta existente = mazoCartaRepository.findByIdMazoAndCodigoCarta(idMazo, codigo).orElse(null);
         if (existente != null) {
             existente.setCantidad(existente.getCantidad() + cantidad);
+
             log.info("Carta {} actualizada en mazo {}", codigo, idMazo);
             return mazoCartaRepository.save(existente);
         }
@@ -43,6 +44,7 @@ public class MazoCartaService {
         nueva.setIdMazo(idMazo);
         nueva.setCodigoCarta(codigo);
         nueva.setCantidad(cantidad);
+
         log.info("Carta {} añadida a mazo {}", codigo, idMazo);
         return mazoCartaRepository.save(nueva);
     }
@@ -57,11 +59,13 @@ public class MazoCartaService {
             carta.setCantidad(nuevaCantidad);
             mazoCartaRepository.save(carta);
         }
+
         log.info("Carta {} quitada de mazo {}", codigo, idMazo);
         return true;
     }
     public void limpiar(Long idMazo) {
         mazoCartaRepository.deleteByIdMazo(idMazo);
+
         log.info("Mazo {} limpiado", idMazo);
     }
 }

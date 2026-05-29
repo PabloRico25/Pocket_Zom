@@ -8,11 +8,14 @@ import lombok.Data;
 public class LogroDTO {
     @NotBlank
     private String idLogro;
+
     @NotBlank
     private String nombre;
     private String descripcion;
+
     @NotBlank
     private String condicionTipo;
+
     @NotNull
     private Integer condicionValor;
     private Integer recompensaMonedas;

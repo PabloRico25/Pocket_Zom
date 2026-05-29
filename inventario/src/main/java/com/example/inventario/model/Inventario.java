@@ -16,11 +16,14 @@ import java.time.LocalDateTime;
 public class Inventario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Column(name = "id_inventario")
     private Long idInventario;
     @NotNull(message = "El ID del jugador es obligatorio")
+
     @Column(name = "id_jugador", nullable = false, unique = true)
     private Long idJugador;
+
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 }

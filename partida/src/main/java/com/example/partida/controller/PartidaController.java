@@ -41,8 +41,7 @@ public class PartidaController {
         }
     }
     @PutMapping("/{id}/finalizar")
-    public ResponseEntity<PartidaDTO> finalizar(@PathVariable Long id,
-                                                @Valid @RequestBody FinalizarPartidaDTO dto) {
+    public ResponseEntity<PartidaDTO> finalizar(@PathVariable Long id,@Valid @RequestBody FinalizarPartidaDTO dto) {
         try {
             return ResponseEntity.ok(partidaService.finalizarPartida(id, dto));
         } catch (RuntimeException e) {

@@ -11,6 +11,5 @@ import java.util.Map;
 public interface BilleteraCliente {
 
     @PostMapping("/api/v1/movimientos/{idJugador}")
-    void registrarMovimiento(@PathVariable("idJugador") Long idJugador,
-                             @RequestBody Map<String, Object> body);
+    void registrarMovimiento(@PathVariable("idJugador") Long idJugador,@RequestBody Map<String, Object> body);
 }

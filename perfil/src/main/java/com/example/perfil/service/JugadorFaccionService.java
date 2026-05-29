@@ -48,9 +48,7 @@ public class JugadorFaccionService {
         return guardado;
     }
     public boolean salir(Long idJugador, Long idFaccion) {
-        JugadorFaccion jf = jugadorFaccionRepository
-                .findByIdJugadorAndIdFaccion(idJugador, idFaccion)
-                .orElse(null);
+        JugadorFaccion jf = jugadorFaccionRepository.findByIdJugadorAndIdFaccion(idJugador, idFaccion).orElse(null);
         if (jf == null) {
             log.warn("El jugador {} no pertenece a la facción {}", idJugador, idFaccion);
             return false;

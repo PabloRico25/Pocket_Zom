@@ -14,11 +14,13 @@ public class InventarioService {
     public Inventario buscarPorJugador(Long idJugador) {
         return inventarioRepository.findByIdJugador(idJugador).orElse(null);
     }
+
     public Inventario crear(Long idJugador) {
         if (inventarioRepository.findByIdJugador(idJugador).isPresent()) {
             log.warn("El jugador {} ya tiene inventario", idJugador);
             return null;
         }
+
         Inventario inv = new Inventario();
         inv.setIdJugador(idJugador);
         Inventario guardado = inventarioRepository.save(inv);

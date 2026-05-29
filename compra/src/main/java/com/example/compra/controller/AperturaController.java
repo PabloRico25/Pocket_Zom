@@ -21,6 +21,7 @@ public class AperturaController {
     public ResponseEntity<List<AperturaDTO>> listar(@PathVariable Long idJugador) {
         return ResponseEntity.ok(aperturaService.listarPorJugador(idJugador));
     }
+
     @PostMapping("/{idJugador}")
     public ResponseEntity<AperturaDTO> abrir(@PathVariable Long idJugador, @Valid @RequestBody AbrirSobreDTO dto) {
         AperturaDTO resultado = aperturaService.abrir(idJugador, dto);

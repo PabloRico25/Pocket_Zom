@@ -34,7 +34,6 @@ public class CarteraController {
         return ResponseEntity.ok(cartera);
     }
 
-    // Crea una cartera para un jugador
     @PostMapping("/{idJugador}")
     public ResponseEntity<Cartera> crear(@PathVariable Long idJugador) {
         Cartera nueva = carteraService.crear(idJugador);

@@ -19,6 +19,7 @@ public class SuministroService {
     public List<SuministroDTO> listar() {
         return suministroRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
+
     public SuministroDTO obtener(Long id) {
         return suministroRepository.findById(id).map(this::toDTO).orElse(null);
     }
@@ -32,13 +33,13 @@ public class SuministroService {
         s.setCantidadCartas(dto.getCantidadCartas());
         s.setProbabilidades(dto.getProbabilidades());
         s = suministroRepository.save(s);
-        log.info("Suministro creado: {}", s.getId());
+        log.info("Suminitro creado: {}", s.getId());
         return toDTO(s);
     }
     public SuministroDTO actualizar(Long id, SuministroDTO dto) {
         Suministro s = suministroRepository.findById(id).orElse(null);
         if (s == null) {
-            log.warn("Suministro no encontrado: {}", id);
+            log.warn("Suministrio no encontrado: {}", id);
             return null;
         }
         s.setNombre(dto.getNombre());

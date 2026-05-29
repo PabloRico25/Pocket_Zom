@@ -25,19 +25,15 @@ public class MazoCartaController {
         return ResponseEntity.ok(lista);
     }
 
-    // Ahora recibe JSON
     @PostMapping
-    public ResponseEntity<MazoCarta> agregar(@PathVariable Long idMazo,
-                                             @Valid @RequestBody AgregarCartaMazoDTO dto) {
+    public ResponseEntity<MazoCarta> agregar(@PathVariable Long idMazo, @Valid @RequestBody AgregarCartaMazoDTO dto) {
         MazoCarta result = mazoCartaService.agregar(idMazo, dto.getCodigoCarta(), dto.getCantidad());
         if (result == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @DeleteMapping("/{codigoCarta}")
-    public ResponseEntity<Void> quitar(@PathVariable Long idMazo,
-                                       @PathVariable String codigoCarta,
-                                       @RequestParam Integer cantidad) {
+    public ResponseEntity<Void> quitar(@PathVariable Long idMazo,@PathVariable String codigoCarta,@RequestParam Integer cantidad) {
         boolean ok = mazoCartaService.quitar(idMazo, codigoCarta, cantidad);
         if (!ok) return ResponseEntity.notFound().build();
         return ResponseEntity.noContent().build();

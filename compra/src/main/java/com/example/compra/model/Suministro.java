@@ -17,20 +17,25 @@ import lombok.NoArgsConstructor;
 public class Suministro {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Column(name = "id_suministro")
     private Long id;
     @NotBlank(message = "El nombre del suministro es obligatorio")
     @Size(max = 100, message = "El nombre no puede superar 100 caracteres")
+
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
     @NotNull(message = "El costo es obligatorio")
     @Min(value = 1, message = "El costo debe ser al menos 1")
+
     @Column(name = "costo", nullable = false)
     private Integer costo;
     @NotNull(message = "La cantidad de cartas es obligatoria")
     @Min(value = 1, message = "Debe entregar al menos 1 carta")
+
     @Column(name = "cantidad_cartas", nullable = false)
     private Integer cantidadCartas;
+
     @Column(name = "probabilidades", columnDefinition = "TEXT")
     private String probabilidades;
 }

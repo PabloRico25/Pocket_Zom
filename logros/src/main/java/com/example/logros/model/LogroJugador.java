@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class LogroJugador {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id;
     private Long jugadorId;
     private String idLogro;

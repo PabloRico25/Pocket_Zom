@@ -59,10 +59,12 @@ public class LogroJugadorService {
         LogroJugador guardado = logroJugadorRepository.save(lj);
         if (logro.getRecompensaMonedas() > 0) {
             try {
-                billeteraClient.registrarMovimiento(jugadorId, "INGRESO", logro.getRecompensaMonedas(),
-                        "Logro desbloqueado: " + logro.getNombre());
+                billeteraClient.registrarMovimiento(jugadorId,"INGRESO",logro.getRecompensaMonedas(), "Logro desbloqueado: " + logro.getNombre());
+
                 log.info("Se entregó recompensa de " + logro.getRecompensaMonedas() + " monedas al jugador " + jugadorId);
+
             } catch (Exception e) {
+
                 log.info("Error al entregar recompensa: " + e.getMessage());
             }
         }

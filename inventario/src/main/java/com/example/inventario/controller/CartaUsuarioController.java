@@ -27,7 +27,6 @@ public class CartaUsuarioController {
         return ResponseEntity.ok(lista);
     }
 
-    // Consumido por mazo via Feign — mantiene @RequestParam
     @GetMapping("/tiene")
     public ResponseEntity<Boolean> tieneCarta(@RequestParam Long idJugador,
                                               @RequestParam String codigoCarta,
@@ -35,10 +34,8 @@ public class CartaUsuarioController {
         return ResponseEntity.ok(cartaUsuarioService.tieneCarta(idJugador, codigoCarta, cantidad));
     }
 
-    // Recibe JSON con codigoCarta y cantidad
     @PostMapping("/{idJugador}/agregar")
-    public ResponseEntity<CartaUsuario> agregar(@PathVariable Long idJugador,
-                                                @Valid @RequestBody AgregarCartaDTO dto) {
+    public ResponseEntity<CartaUsuario> agregar(@PathVariable Long idJugador,@Valid @RequestBody AgregarCartaDTO dto) {
         CartaUsuario resultado = cartaUsuarioService.agregar(idJugador, dto.getCodigoCarta(), dto.getCantidad());
         if (resultado == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
@@ -53,7 +50,6 @@ public class CartaUsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    // Consumido por publicacion via Feign — ahora con @RequestBody DTO
     @PostMapping("/transferir")
     public ResponseEntity<Void> transferir(@Valid @RequestBody TransferirCartaDTO dto) {
         boolean ok = cartaUsuarioService.transferir(

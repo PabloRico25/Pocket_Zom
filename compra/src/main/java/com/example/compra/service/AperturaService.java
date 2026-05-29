@@ -33,21 +33,26 @@ public class AperturaService {
     public AperturaDTO abrir(Long idJugador, AbrirSobreDTO dto) {
         Suministro suministro = suministroService.obtenerEntidad(dto.getSuministroId());
         if (suministro == null) {
+
             log.warn("Suministro no encontrado: {}", dto.getSuministroId());
             return null;
         }
         try {
             billeteraCliente.registrarMovimiento(idJugador,
-                    new MovimientoDTO("EGRESO", suministro.getCosto(),
-                            "Compra de " + suministro.getNombre()));
+                    new MovimientoDTO("EGRESO", suministro.getCosto(),"Compra de " + suministro.getNombre()));
+
         } catch (Exception e) {
+
             log.error("Error al descontar costo: {}", e.getMessage());
             return null;
+
         }
+
         List<String> cartasObtenidas = new ArrayList<>();
         for (int i = 0; i < suministro.getCantidadCartas(); i++) {
             cartasObtenidas.add(generarCartaAleatoria());
         }
+
         Apertura apertura = new Apertura();
         apertura.setJugadorId(idJugador);
         apertura.setSuministroId(suministro.getId());
@@ -58,17 +63,17 @@ public class AperturaService {
             try {
                 inventarioCliente.agregarCarta(idJugador, carta, 1);
             } catch (Exception e) {
+
                 log.error("Error al agregar carta {} al inventario: {}", carta, e.getMessage());
             }
         }
+
         log.info("Apertura {} realizada para jugador {}", apertura.getId(), idJugador);
         return toDTO(apertura, suministro);
     }
 
     public List<AperturaDTO> listarPorJugador(Long idJugador) {
-        return aperturaRepository.findByJugadorId(idJugador).stream()
-                .map(a -> toDTO(a, suministroService.obtenerEntidad(a.getSuministroId())))
-                .collect(Collectors.toList());
+        return aperturaRepository.findByJugadorId(idJugador).stream().map(a -> toDTO(a, suministroService.obtenerEntidad(a.getSuministroId()))).collect(Collectors.toList());
     }
 
     private String generarCartaAleatoria() {
@@ -77,7 +82,9 @@ public class AperturaService {
     }
 
     private String convertirAJson(List<String> lista) {
-        try { return objectMapper.writeValueAsString(lista); } catch (Exception e) { return "[]"; }
+        try { return objectMapper.writeValueAsString(lista); }
+        catch (Exception e) {
+            return "[]"; }
     }
 
     private AperturaDTO toDTO(Apertura a, Suministro s) {

@@ -19,7 +19,6 @@ public class JugadorFaccionController {
 
     private final JugadorFaccionService jugadorFaccionService;
 
-    // Lista las facciones a las que pertenece un jugador
     @GetMapping("/{idJugador}")
     public ResponseEntity<List<JugadorFaccion>> listarPorJugador(@PathVariable Long idJugador) {
         List<JugadorFaccion> lista = jugadorFaccionService.listarPorJugador(idJugador);
@@ -29,7 +28,6 @@ public class JugadorFaccionController {
         return ResponseEntity.ok(lista);
     }
 
-    // Une un jugador a una facción
     @PostMapping("/{idJugador}/{idFaccion}")
     public ResponseEntity<JugadorFaccion> unir(@PathVariable Long idJugador, @PathVariable Long idFaccion) {
         JugadorFaccion resultado = jugadorFaccionService.unir(idJugador, idFaccion);
@@ -39,7 +37,6 @@ public class JugadorFaccionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
     }
 
-    // El jugador abandona la facción
     @DeleteMapping("/{idJugador}/{idFaccion}")
     public ResponseEntity<Void> salir(@PathVariable Long idJugador, @PathVariable Long idFaccion) {
         boolean salio = jugadorFaccionService.salir(idJugador, idFaccion);
