@@ -1,6 +1,7 @@
 package com.example.inventario.controller;
 
 import com.example.inventario.dto.AgregarCartaDTO;
+import com.example.inventario.dto.TransferirCartaDTO;
 import com.example.inventario.model.CartaUsuario;
 import com.example.inventario.service.CartaUsuarioService;
 import jakarta.validation.Valid;
@@ -53,14 +54,19 @@ public class CartaUsuarioController {
     }
 
     // Consumido por publicacion via Feign — mantiene @RequestParam
-    @PostMapping("/{idJugador}/transferir")
-    public ResponseEntity<Void> transferir(@PathVariable Long idJugador,
-                                           @RequestParam Long idJugadorOrigen,
-                                           @RequestParam Long idJugadorDestino,
-                                           @RequestParam String codigoCarta,
-                                           @RequestParam Integer cantidad) {
-        boolean ok = cartaUsuarioService.transferir(idJugadorOrigen, idJugadorDestino, codigoCarta, cantidad);
-        if (!ok) return ResponseEntity.badRequest().build();
-        return ResponseEntity.ok().build();
+    @PostMapping("/transferir")
+    public ResponseEntity<Void> transferirCarta(@Valid @RequestBody TransferirCartaDTO request) {
+        try {
+            cartaUsuarioService.transferirCarta(
+                    request.getIdJugadorOrigen(),
+                    request.getIdJugadorDestino(),
+                    request.getCodigoCarta(),
+                    request.getCantidad()
+            );
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            log.error("Error al transferir carta: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
