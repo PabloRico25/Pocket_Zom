@@ -72,7 +72,7 @@ public class AperturaService {
     }
 
     private String generarCartaAleatoria() {
-        String[] cartas = {"ZMB-001", "ZMB-002", "HUM-001", "HUM-002", "BEST-001"};
+        String[] cartas = {"ZMB-001", "ZMB-002", "HUM-001", "HUM-002", "HUM-003"};
         return cartas[random.nextInt(cartas.length)];
     }
 

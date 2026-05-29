@@ -24,4 +24,5 @@ public class InventarioController {
         if (nuevo == null) return ResponseEntity.status(HttpStatus.CONFLICT).build();
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
+
 }

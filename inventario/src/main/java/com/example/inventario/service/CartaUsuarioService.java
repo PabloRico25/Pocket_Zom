@@ -2,6 +2,8 @@ package com.example.inventario.service;
 
 import com.example.inventario.cliente.CartaCliente;
 import com.example.inventario.cliente.PerfilCliente;
+import com.example.inventario.dto.AgregarCartaDTO;
+import com.example.inventario.dto.TransferirCartaDTO;
 import com.example.inventario.model.CartaUsuario;
 import com.example.inventario.model.Inventario;
 import com.example.inventario.repository.CartaUsuarioRepository;
@@ -95,4 +97,5 @@ public class CartaUsuarioService {
         log.info("Carta {} transferida de jugador {} a {}", codigoCarta, idOrigen, idDestino);
         return true;
     }
+    
 }

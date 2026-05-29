@@ -1,6 +1,7 @@
 package com.example.inventario.controller;
 
 import com.example.inventario.dto.AgregarCartaDTO;
+import com.example.inventario.dto.TransferirCartaDTO;
 import com.example.inventario.model.CartaUsuario;
 import com.example.inventario.service.CartaUsuarioService;
 import jakarta.validation.Valid;
@@ -26,7 +27,7 @@ public class CartaUsuarioController {
         return ResponseEntity.ok(lista);
     }
 
-    // Consumido por mazo via Feign con @RequestParam — no cambia
+    // Consumido por mazo via Feign — mantiene @RequestParam
     @GetMapping("/tiene")
     public ResponseEntity<Boolean> tieneCarta(@RequestParam Long idJugador,
                                               @RequestParam String codigoCarta,
@@ -34,7 +35,7 @@ public class CartaUsuarioController {
         return ResponseEntity.ok(cartaUsuarioService.tieneCarta(idJugador, codigoCarta, cantidad));
     }
 
-    // Ahora recibe JSON
+    // Recibe JSON con codigoCarta y cantidad
     @PostMapping("/{idJugador}/agregar")
     public ResponseEntity<CartaUsuario> agregar(@PathVariable Long idJugador,
                                                 @Valid @RequestBody AgregarCartaDTO dto) {
@@ -52,15 +53,17 @@ public class CartaUsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    // Consumido por publicacion via Feign — mantiene @RequestParam
-    @PostMapping("/{idJugador}/transferir")
-    public ResponseEntity<Void> transferir(@PathVariable Long idJugador,
-                                           @RequestParam Long idJugadorOrigen,
-                                           @RequestParam Long idJugadorDestino,
-                                           @RequestParam String codigoCarta,
-                                           @RequestParam Integer cantidad) {
-        boolean ok = cartaUsuarioService.transferir(idJugadorOrigen, idJugadorDestino, codigoCarta, cantidad);
+    // Consumido por publicacion via Feign — ahora con @RequestBody DTO
+    @PostMapping("/transferir")
+    public ResponseEntity<Void> transferir(@Valid @RequestBody TransferirCartaDTO dto) {
+        boolean ok = cartaUsuarioService.transferir(
+                dto.getIdJugadorOrigen(),
+                dto.getIdJugadorDestino(),
+                dto.getCodigoCarta(),
+                dto.getCantidad()
+        );
         if (!ok) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok().build();
     }
 }
+
