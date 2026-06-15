@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
     @Bean
-    public OpenAPI perfilOpenAPI(){
+    public OpenAPI compraOpenAPI(){
         return new OpenAPI().info(new Info()
                 .title("API 2026 Compra")
                 .version("1.0")
