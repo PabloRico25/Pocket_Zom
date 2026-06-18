@@ -11,7 +11,7 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI mazoOpenAPI() {
         return new OpenAPI().info(new Info()
-                .title("Mazo Service API")
+                .title("API 2026 Mazo")
                 .version("1.0")
                 .description("Documentacion de la API sobre el sistema de Mazo"));
     }

@@ -10,8 +10,8 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Billetera API")
+                        .title("API 2026 Billetera")
                         .version("1.0")
-                        .description("API para la gestión de billeteras"));
+                        .description("API para la gestión de billeteras del Sistema"));
     }
 }

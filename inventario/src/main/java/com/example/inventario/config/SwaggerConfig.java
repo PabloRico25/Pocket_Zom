@@ -11,7 +11,7 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Inventario API")
+                        .title("API 2026 Inventario")
                         .version("1.0")
                         .description("API para la gestión de inventarios"));
     }
