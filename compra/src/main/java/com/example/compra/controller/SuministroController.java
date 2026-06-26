@@ -49,7 +49,8 @@ public class SuministroController {
     @PostMapping
     @Operation(summary = "Crear sobre de cartas", description = "Crea un sobre de cartas usando la informacion entregada")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Sobre creado correctamente")
+            @ApiResponse(responseCode = "201", description = "Sobre creado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error al crear el sobre")
     })
     public ResponseEntity<SuministroDTO> crear(@Valid @RequestBody SuministroDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(suministroService.crear(dto));
@@ -70,7 +71,8 @@ public class SuministroController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Elimina un sobre de cartas", description = "Elimina un sobre de cartas en especifico")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "El sobre fue eliminado")
+            @ApiResponse(responseCode = "204", description = "El sobre fue eliminado"),
+            @ApiResponse(responseCode = "400", description = "Error al eliminar el sobre")
     })
     public ResponseEntity<Void> eliminar(@Parameter(description = "Id del sobre", required = true) @PathVariable Long id) {
         suministroService.eliminar(id);

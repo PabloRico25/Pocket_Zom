@@ -24,7 +24,8 @@ public class LogroJugadorController {
     @GetMapping("/{jugadorId}")
     @Operation(summary = "Listar logros de un jugador", description = "Obtiene la lista de los logros de un jugador")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado correctamente")
+            @ApiResponse(responseCode = "200", description = "Listado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error al listar logros")
     })
     public ResponseEntity<List<LogroJugadorDTO>> listarPorJugador(@Parameter(description = "ID del jugador", required = true) @PathVariable Long jugadorId) {
         return ResponseEntity.ok(logroJugadorService.listarPorJugador(jugadorId));
@@ -48,7 +49,8 @@ public class LogroJugadorController {
     @PostMapping("/verificar/{jugadorId}/{tipo}/{valor}")
     @Operation(summary = "Verificar logros con filtro", description = "Obtiene la lista de logros de un jugador que cumplan con un tipo y valor")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de logros generado correctamente")
+            @ApiResponse(responseCode = "200", description = "Listado de logros generado correctamente"),
+            @ApiResponse(responseCode = "404", description = "No hay logros a listar")
     })
     public ResponseEntity<List<LogroJugadorDTO>> verificar(@Parameter(description = "ID del jugador", required = true) @PathVariable Long jugadorId,
                                                            @Parameter(description = "Tipo de logro", required = true) @PathVariable String tipo,

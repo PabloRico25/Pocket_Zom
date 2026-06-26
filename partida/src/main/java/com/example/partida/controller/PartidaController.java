@@ -23,7 +23,8 @@ public class PartidaController {
     @GetMapping
     @Operation(summary = "Listar partidas", description = "Obtiene una lista de todas las partidas finalizadas o en proceso")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Partidas listadas correctamente")
+            @ApiResponse(responseCode = "200", description = "Partidas listadas correctamente"),
+            @ApiResponse(responseCode = "404", description = "Lista de partidas no encontrada")
     })
     public ResponseEntity<List<PartidaDTO>> listarTodas() {
         return ResponseEntity.ok(partidaService.listarTodas());
@@ -32,7 +33,8 @@ public class PartidaController {
     @GetMapping("/jugador/{jugadorId}")
     @Operation(summary = "Listar partidas por jugador", description = "Obtiene una lista de todas las partidas donde participa el jugador")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Partidas listadas por jugador correctamente")
+            @ApiResponse(responseCode = "200", description = "Partidas listadas por jugador correctamente"),
+            @ApiResponse(responseCode = "404", description = "Lista de partida o jugador no encontrado")
     })
     public ResponseEntity<List<PartidaDTO>> listarPorJugador(@Parameter(description = "ID del jugador", required = true) @PathVariable Long jugadorId) {
         return ResponseEntity.ok(partidaService.listarPorJugador(jugadorId));

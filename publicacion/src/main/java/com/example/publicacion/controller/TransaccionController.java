@@ -38,7 +38,8 @@ public class TransaccionController {
     @GetMapping("/comprador/{compradorId}")
     @Operation(summary = "Listar compras", description = "Listar compras por id del comprador")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Compras listadas correctamente")
+            @ApiResponse(responseCode = "200", description = "Compras listadas correctamente"),
+            @ApiResponse(responseCode = "404", description = "Lista de compras o comprador no encontrado")
     })
     public ResponseEntity<List<TransaccionDTO>> listarCompras(@Parameter(description = "ID del comprador", required = true) @PathVariable Long compradorId) {
         return ResponseEntity.ok(transaccionService.listarPorComprador(compradorId));

@@ -36,7 +36,8 @@ public class PublicacionController {
     @GetMapping("/vendedor/{idVendedor}")
     @Operation(summary = "Listar por vendedor", description = "Listar publicaciones por vendedor")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Publicaciones listada correctamente")
+            @ApiResponse(responseCode = "200", description = "Publicaciones listada correctamente"),
+            @ApiResponse(responseCode = "404", description = "Error al listar publicaciones")
     })
     public ResponseEntity<List<PublicacionDTO>> listarPorVendedor(@PathVariable Long idVendedor) {
         return ResponseEntity.ok(publicacionService.listarPorVendedor(idVendedor));
@@ -57,7 +58,8 @@ public class PublicacionController {
     @PostMapping
     @Operation(summary = "Crear publicacion", description = "Crear una publicacion sobre una carta")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Publicacion creada correctamente")
+            @ApiResponse(responseCode = "201", description = "Publicacion creada correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error al crear una publicacion")
     })
     public ResponseEntity<PublicacionDTO> crear(@Valid @RequestBody PublicacionDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(publicacionService.crear(dto));
@@ -66,7 +68,8 @@ public class PublicacionController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Borrar una publicacion", description = "Elimina una publicacion existente")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Borrado completado")
+            @ApiResponse(responseCode = "204", description = "Borrado completado"),
+            @ApiResponse(responseCode = "400", description = "Error al eliminar una publicacion")
     })
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         publicacionService.eliminar(id);

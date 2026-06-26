@@ -26,7 +26,8 @@ public class AperturaController {
     @GetMapping("/{idJugador}")
     @Operation(summary = "Listar aperturas del jugador", description = "Lista todas las aperturas realizadas por el jugador indicando cartas obtenidas, fecha, etc")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Se mostro la lista")
+            @ApiResponse(responseCode = "200", description = "Se mostro la lista"),
+            @ApiResponse(responseCode = "400", description = "Error al mostrar lista")
     })
     public ResponseEntity<List<AperturaDTO>> listar(@Parameter(description = "ID del jugador", required = true) @PathVariable Long idJugador) {
         return ResponseEntity.ok(aperturaService.listarPorJugador(idJugador));

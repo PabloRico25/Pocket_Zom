@@ -25,7 +25,8 @@ public class LogroController {
     @GetMapping
     @Operation(summary = "Listar logros", description = "Obtiene la lista de los logros")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de logros generados correctamente")
+            @ApiResponse(responseCode = "200", description = "Listado de logros generados correctamente"),
+            @ApiResponse(responseCode = "404", description = "No hay logros a listar")
     })
     public ResponseEntity<List<LogroDTO>> listar() {
         return ResponseEntity.ok(logroService.listar());
@@ -48,7 +49,8 @@ public class LogroController {
     @GetMapping("/tipo/{tipo}")
     @Operation(summary = "Listar logros", description = "Listar logros por tipo")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado generado correctamente")
+            @ApiResponse(responseCode = "200", description = "Listado generado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Lista de logros no encontrados")
     })
     public ResponseEntity<List<LogroDTO>> listarPorTipo(@Parameter(description = "Tipo de logro", required = true) @PathVariable String tipo) {
         return ResponseEntity.ok(logroService.listarPorTipo(tipo));
